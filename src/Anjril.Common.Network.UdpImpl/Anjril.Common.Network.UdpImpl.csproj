@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Anjril.Common.Network.UdpImpl</RootNamespace>
     <AssemblyName>Anjril.Common.Network.UdpImpl</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -30,13 +31,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Anjril.Common.Network, Version=0.0.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Anjril.Common.Network.0.0.2.0\lib\net35\Anjril.Common.Network.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -46,10 +49,7 @@
     <Compile Include="UdpSender.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Anjril.Common.Network\Anjril.Common.Network.csproj">
-      <Project>{0ba3ee8c-e4a2-41bf-ac12-444539c02edd}</Project>
-      <Name>Anjril.Common.Network</Name>
-    </ProjectReference>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace Anjril.Common.Network
 {
@@ -49,7 +49,8 @@ namespace Anjril.Common.Network
 
         public void StartListening()
         {
-            Task.Run(() => this.Receiver.StartListening());
+            var thread = new Thread(new ThreadStart(this.Receiver.StartListening));
+            thread.Start();
         }
 
         #endregion

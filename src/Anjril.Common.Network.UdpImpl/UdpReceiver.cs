@@ -5,7 +5,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Anjril.Common.Network.UdpImpl
 {
@@ -40,19 +39,18 @@ namespace Anjril.Common.Network.UdpImpl
         {
             while(true) // TODO : use a variable to be able to stop 
             {
-                // Get datagram
-                var datagram = this.Listener.ReceiveAsync();
+                var endPoint = new IPEndPoint(IPAddress.Any, 0);
 
-                // Wait until the datagram is received
-                datagram.Wait();
+                // Get datagram
+                var datagram = this.Listener.Receive(ref endPoint);
 
                 // Decode datagram
-                var message = Encoding.ASCII.GetString(datagram.Result.Buffer);
+                var message = Encoding.ASCII.GetString(datagram);
 
                 // Raise OnReceive event
                 if (this.OnReceive != null)
                 {
-                    var remoteConnection = new RemoteConnection { Port = datagram.Result.RemoteEndPoint.Port, IPAddress = datagram.Result.RemoteEndPoint.Address.ToString() };
+                    var remoteConnection = new RemoteConnection { Port = endPoint.Port, IPAddress = endPoint.Address.ToString() };
 
                     this.OnReceive(remoteConnection, message);
                 }
