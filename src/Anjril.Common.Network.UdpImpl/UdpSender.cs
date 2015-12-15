@@ -26,7 +26,7 @@ namespace Anjril.Common.Network.UdpImpl
 
         #region methods
 
-        public void Send(string message, RemoteConnection destination)
+        public void Send(string message, IRemoteConnection destination)
         {
             var datagram = Encoding.ASCII.GetBytes(message);
 

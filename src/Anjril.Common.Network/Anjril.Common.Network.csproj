@@ -40,12 +40,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Events.cs" />
+    <Compile Include="Exceptions\CannotSendException.cs" />
     <Compile Include="IReceiver.cs" />
     <Compile Include="ISender.cs" />
-    <Compile Include="RemoteConnection.cs" />
-    <Compile Include="Socket.cs" />
+    <Compile Include="ISocket.cs" />
+    <Compile Include="IRemoteConnection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

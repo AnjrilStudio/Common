@@ -20,15 +20,17 @@ namespace Anjril.Common.Network.UdpImpl
 
         #region events
 
-        public event ReceiveHandler OnReceive;
+        public event MessageHandler OnReceive;
 
         #endregion
 
         #region contructors
 
-        public UdpReceiver(UdpClient udpClient)
+        public UdpReceiver(UdpClient udpClient, MessageHandler handler)
         {
             this.Listener = udpClient;
+
+            this.OnReceive += handler;
         }
 
         #endregion
@@ -50,7 +52,7 @@ namespace Anjril.Common.Network.UdpImpl
                 // Raise OnReceive event
                 if (this.OnReceive != null)
                 {
-                    var remoteConnection = new RemoteConnection { Port = endPoint.Port, IPAddress = endPoint.Address.ToString() };
+                    var remoteConnection = new UdpRemoteConnection(endPoint);
 
                     this.OnReceive(remoteConnection, message);
                 }

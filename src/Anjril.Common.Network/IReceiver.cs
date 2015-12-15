@@ -9,18 +9,27 @@ namespace Anjril.Common.Network
     {
         #region properties
 
+        /// <summary>
+        /// The port on which the receiver is listening
+        /// </summary>
         int ListeningPort { get; }
 
         #endregion
 
         #region events
 
-        event ReceiveHandler OnReceive;
+        /// <summary>
+        /// Fires when a message arrives
+        /// </summary>
+        event MessageHandler OnReceive;
 
         #endregion
 
         #region methods
 
+        /// <summary>
+        /// Starts listening for messages on the <see cref="ListeningPort"/>
+        /// </summary>
         void StartListening();
 
         #endregion

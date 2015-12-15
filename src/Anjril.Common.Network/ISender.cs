@@ -10,7 +10,12 @@ namespace Anjril.Common.Network
     {
         #region methods
 
-        void Send(string message, RemoteConnection destination);
+        /// <summary>
+        /// Sends a message to the specified destination
+        /// </summary>
+        /// <param name="message">the message to send</param>
+        /// <param name="destination">the message destination</param>
+        void Send(string message, IRemoteConnection destination);
 
         #endregion
     }

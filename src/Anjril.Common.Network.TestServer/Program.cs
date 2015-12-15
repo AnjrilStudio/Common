@@ -11,17 +11,16 @@ namespace Anjril.Common.Network.TestServer
 {
     class Program
     {
-        private static Socket Socket;
+        private static ISocket Socket;
 
         static void Main(string[] args)
         {
             var listeningPort = 16000;
 
-            var udpClient = new UdpClient(listeningPort);
-
-            Socket = new Socket(new UdpReceiver(udpClient), new UdpSender(udpClient), MessageReceived);
+            Socket = new UdpSocket(listeningPort, ConnectionRequested, ConnectionAccepted, ConnectionRefused, MessageReceived);
 
             Socket.StartListening();
+
             Console.WriteLine("Le serveur commence à écouter.");
 
             Console.WriteLine();
@@ -29,11 +28,32 @@ namespace Anjril.Common.Network.TestServer
             Console.ReadKey();
         }
 
-        public static void MessageReceived(RemoteConnection sender, string message)
+        public static void ConnectionRequested(IRemoteConnection sender, string message)
         {
             Console.WriteLine("Message reçu : " + message);
 
             Socket.Send("Message bien reçu !", sender);
+        }
+
+        public static void ConnectionAccepted(IRemoteConnection sender, string message)
+        {
+            Console.WriteLine("Message reçu : " + message);
+
+            Socket.Send("Message bien reçu !", sender);
+        }
+
+        public static void ConnectionRefused(IRemoteConnection sender, string message)
+        {
+            Console.WriteLine("Message reçu : " + message);
+
+            Socket.Send("Message bien reçu !", sender);
+        }
+
+        public static void MessageReceived(IRemoteConnection sender, string message)
+        {
+            Console.WriteLine("Message reçu : " + message);
+
+            sender.Send("Message bien reçu !");
         }
     }
 }
