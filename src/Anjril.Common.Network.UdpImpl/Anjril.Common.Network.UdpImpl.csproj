@@ -30,6 +30,13 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'WAN|AnyCPU'">
+    <OutputPath>bin\WAN\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;WAN</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -39,11 +46,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Command.cs" />
+    <Compile Include="Message.cs" />
+    <Compile Include="RemoteConnectionExtensions.cs" />
+    <Compile Include="State\AcquittalRequest.cs" />
+    <Compile Include="State\BaseRequest.cs" />
+    <Compile Include="State\ConnectionRequest.cs" />
+    <Compile Include="Exceptions\NotConnectedException.cs" />
+    <Compile Include="State\PingRequest.cs" />
     <Compile Include="UdpRemoteConnection.cs" />
     <Compile Include="UdpSocket.cs" />
     <Compile Include="UdpReceiver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UdpSender.cs" />
+    <Compile Include="State\UdpSocketState.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

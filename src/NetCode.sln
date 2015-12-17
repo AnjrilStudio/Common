@@ -3,44 +3,39 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anjril.Common.Network.TestServer", "Anjril.Common.Network.TestServer\Anjril.Common.Network.TestServer.csproj", "{6CDA792B-B5E2-4C96-9AE8-A5FEE09E85BF}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anjril.Common.Network", "Anjril.Common.Network\Anjril.Common.Network.csproj", "{0BA3EE8C-E4A2-41BF-AC12-444539C02EDD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anjril.Common.Network.UdpImpl", "Anjril.Common.Network.UdpImpl\Anjril.Common.Network.UdpImpl.csproj", "{383AFCA6-19A8-4FEC-A69A-AD962A37B80F}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{283AE20B-9DBB-4F69-9929-5B4CC33AE383}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anjril.Common.Network.TestClient", "Anjril.Common.Network.TestClient\Anjril.Common.Network.TestClient.csproj", "{5F6F9A1F-41DA-437C-AB18-E05960D8E384}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anjril.Common.Network.Tests", "Anjril.Common.Network.Tests\Anjril.Common.Network.Tests.csproj", "{2ED5AFB1-952A-4080-BA97-C9786568BE6F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
+		WAN|Any CPU = WAN|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{6CDA792B-B5E2-4C96-9AE8-A5FEE09E85BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6CDA792B-B5E2-4C96-9AE8-A5FEE09E85BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6CDA792B-B5E2-4C96-9AE8-A5FEE09E85BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6CDA792B-B5E2-4C96-9AE8-A5FEE09E85BF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0BA3EE8C-E4A2-41BF-AC12-444539C02EDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0BA3EE8C-E4A2-41BF-AC12-444539C02EDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0BA3EE8C-E4A2-41BF-AC12-444539C02EDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0BA3EE8C-E4A2-41BF-AC12-444539C02EDD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0BA3EE8C-E4A2-41BF-AC12-444539C02EDD}.WAN|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BA3EE8C-E4A2-41BF-AC12-444539C02EDD}.WAN|Any CPU.Build.0 = Debug|Any CPU
 		{383AFCA6-19A8-4FEC-A69A-AD962A37B80F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{383AFCA6-19A8-4FEC-A69A-AD962A37B80F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{383AFCA6-19A8-4FEC-A69A-AD962A37B80F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{383AFCA6-19A8-4FEC-A69A-AD962A37B80F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5F6F9A1F-41DA-437C-AB18-E05960D8E384}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5F6F9A1F-41DA-437C-AB18-E05960D8E384}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5F6F9A1F-41DA-437C-AB18-E05960D8E384}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5F6F9A1F-41DA-437C-AB18-E05960D8E384}.Release|Any CPU.Build.0 = Release|Any CPU
+		{383AFCA6-19A8-4FEC-A69A-AD962A37B80F}.WAN|Any CPU.ActiveCfg = WAN|Any CPU
+		{383AFCA6-19A8-4FEC-A69A-AD962A37B80F}.WAN|Any CPU.Build.0 = WAN|Any CPU
+		{2ED5AFB1-952A-4080-BA97-C9786568BE6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2ED5AFB1-952A-4080-BA97-C9786568BE6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2ED5AFB1-952A-4080-BA97-C9786568BE6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2ED5AFB1-952A-4080-BA97-C9786568BE6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2ED5AFB1-952A-4080-BA97-C9786568BE6F}.WAN|Any CPU.ActiveCfg = Debug|Any CPU
+		{2ED5AFB1-952A-4080-BA97-C9786568BE6F}.WAN|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{6CDA792B-B5E2-4C96-9AE8-A5FEE09E85BF} = {283AE20B-9DBB-4F69-9929-5B4CC33AE383}
-		{5F6F9A1F-41DA-437C-AB18-E05960D8E384} = {283AE20B-9DBB-4F69-9929-5B4CC33AE383}
 	EndGlobalSection
 EndGlobal

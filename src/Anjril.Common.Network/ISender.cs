@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Anjril.Common.Network
 {
-    public interface ISender
+    public interface ISender : IDisposable
     {
         #region methods
 

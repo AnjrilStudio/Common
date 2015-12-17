@@ -28,9 +28,49 @@ namespace Anjril.Common.Network.UdpImpl
 
         public void Send(string message, IRemoteConnection destination)
         {
-            var datagram = Encoding.ASCII.GetBytes(message);
+#if WAN
+            // In WAN mode, we simulate the lost of packages
+            // 1 package in 5 is lost
 
-            this.Sender.Send(datagram, datagram.Length, new IPEndPoint(IPAddress.Parse(destination.IPAddress), destination.Port));
+            var random = new Random();
+
+            if (random.Next(5) == 0)
+            {
+                Console.WriteLine(@"/!\ Package lost /!\");
+            }
+            else
+            {
+#endif
+                var datagram = Encoding.ASCII.GetBytes(message);
+
+                this.Sender.Send(datagram, datagram.Length, new IPEndPoint(IPAddress.Parse(destination.IPAddress), destination.Port));
+#if WAN
+            }
+#endif
+        }
+
+        #endregion
+
+        #region IDisposable support
+
+        private bool disposedValue = false;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    this.Sender.Close();
+                }
+
+                disposedValue = true;
+            }
+        }
+        
+        public void Dispose()
+        {
+            Dispose(true);
         }
 
         #endregion

@@ -32,6 +32,12 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'WAN|AnyCPU'">
+    <OutputPath>bin\WAN\</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Gif.Components, Version=0.0.0.1, Culture=neutral">
       <HintPath>..\packages\Anjril.PokemonWorld.Generator.0.0.2.0\lib\net46\Gif.Components.dll</HintPath>

@@ -20,6 +20,16 @@ namespace Anjril.Common.Network.UdpImpl
         /// </summary>
         internal ISender Sender { get; set; }
 
+        /// <summary>
+        /// The id of the next message to send
+        /// </summary>
+        internal ulong NextSendingId { get; set; }
+
+        /// <summary>
+        /// The expected id of the next message
+        /// </summary>
+        internal ulong NextReceivingId { get; set; }
+
         #endregion
 
         #region constructors
@@ -28,6 +38,8 @@ namespace Anjril.Common.Network.UdpImpl
         {
             this.IPAddress = ipAddress;
             this.Port = port;
+
+            this.NextReceivingId = this.NextSendingId = UInt64.MinValue;
         }
 
         public UdpRemoteConnection(IPEndPoint endPoint)

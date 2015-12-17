@@ -40,6 +40,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Events.cs" />
+    <Compile Include="Exceptions\AlreadyListeningException.cs" />
     <Compile Include="Exceptions\CannotSendException.cs" />
     <Compile Include="IReceiver.cs" />
     <Compile Include="ISender.cs" />

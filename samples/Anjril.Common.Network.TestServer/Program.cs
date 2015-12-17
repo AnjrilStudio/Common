@@ -30,30 +30,22 @@ namespace Anjril.Common.Network.TestServer
 
         public static void ConnectionRequested(IRemoteConnection sender, string message)
         {
-            Console.WriteLine("Message reçu : " + message);
-
-            Socket.Send("Message bien reçu !", sender);
+            throw new NotImplementedException();
         }
 
         public static void ConnectionAccepted(IRemoteConnection sender, string message)
         {
-            Console.WriteLine("Message reçu : " + message);
-
-            Socket.Send("Message bien reçu !", sender);
+            throw new NotImplementedException();
         }
 
         public static void ConnectionRefused(IRemoteConnection sender, string message)
         {
-            Console.WriteLine("Message reçu : " + message);
-
-            Socket.Send("Message bien reçu !", sender);
+            throw new NotImplementedException();
         }
 
         public static void MessageReceived(IRemoteConnection sender, string message)
         {
             Console.WriteLine("Message reçu : " + message);
-
-            sender.Send("Message bien reçu !");
         }
     }
 }
