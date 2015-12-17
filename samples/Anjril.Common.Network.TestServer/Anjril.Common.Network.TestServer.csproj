@@ -39,6 +39,14 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Anjril.Common.Network, Version=0.0.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Anjril.Common.Network.0.0.2.0\lib\net35\Anjril.Common.Network.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Anjril.Common.Network.UdpImpl, Version=0.0.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Anjril.Common.Network.UdpImpl.0.0.2.0\lib\net35\Anjril.Common.Network.UdpImpl.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -54,16 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Anjril.Common.Network.UdpImpl\Anjril.Common.Network.UdpImpl.csproj">
-      <Project>{383afca6-19a8-4fec-a69a-ad962a37b80f}</Project>
-      <Name>Anjril.Common.Network.UdpImpl</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Anjril.Common.Network\Anjril.Common.Network.csproj">
-      <Project>{0ba3ee8c-e4a2-41bf-ac12-444539c02edd}</Project>
-      <Name>Anjril.Common.Network</Name>
-    </ProjectReference>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
