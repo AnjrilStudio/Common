@@ -7,7 +7,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Anjril.Common.Network.TestServer
+namespace Anjril.Common.Network.ExampleServer
 {
     class Program
     {

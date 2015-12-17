@@ -9,7 +9,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Anjril.Common.Network.TestClient
+namespace Anjril.Common.Network.ExampleClient
 {
     class Program
     {

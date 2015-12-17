@@ -7,8 +7,8 @@
     <ProjectGuid>{6CDA792B-B5E2-4C96-9AE8-A5FEE09E85BF}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Anjril.Common.Network.TestServer</RootNamespace>
-    <AssemblyName>Anjril.Common.Network.TestServer</AssemblyName>
+    <RootNamespace>Anjril.Common.Network.ExampleServer</RootNamespace>
+    <AssemblyName>Anjril.Common.Network.ExampleServer</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

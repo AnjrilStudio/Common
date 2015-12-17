@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Anjril.Common.Network.TestClient")]
+[assembly: AssemblyTitle("Anjril.Common.Network.ExampleServer")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Anjril.Common.Network.TestClient")]
+[assembly: AssemblyProduct("Anjril.Common.Network.ExampleServer")]
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("6cda792b-b5e2-4c96-9ae8-a5fee09e85bf")]
+[assembly: Guid("5f6f9a1f-41da-437c-ab18-e05960d8e384")]
 
 // Version information for an assembly consists of the following four values:
 //
