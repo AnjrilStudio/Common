@@ -106,7 +106,7 @@ namespace Anjril.Common.Network.Tests
         public void MyTestCleanup()
         {
             this.Receiver.Dispose();
-            this.Sender.Close();
+            this.Sender.Dispose();
         }
     }
 }

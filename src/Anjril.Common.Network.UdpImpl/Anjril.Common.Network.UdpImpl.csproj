@@ -62,9 +62,6 @@
     <Compile Include="State\UdpSocketState.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Anjril.Common.Network\Anjril.Common.Network.csproj">
       <Project>{0ba3ee8c-e4a2-41bf-ac12-444539c02edd}</Project>
       <Name>Anjril.Common.Network</Name>

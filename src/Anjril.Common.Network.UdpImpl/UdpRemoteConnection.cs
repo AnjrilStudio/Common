@@ -23,12 +23,17 @@ namespace Anjril.Common.Network.UdpImpl
         /// <summary>
         /// The id of the next message to send
         /// </summary>
-        internal ulong NextSendingId { get; set; }
+        internal ulong NextSendingId { get; private set; }
 
         /// <summary>
         /// The expected id of the next message
         /// </summary>
-        internal ulong NextReceivingId { get; set; }
+        internal ulong NextReceivingId { get; private set; }
+
+        /// <summary>
+        /// The list of arrived message, waiting for former message not arrived yet
+        /// </summary>
+        internal IList<Message> MessageStack { get; set; }
 
         #endregion
 
@@ -40,6 +45,7 @@ namespace Anjril.Common.Network.UdpImpl
             this.Port = port;
 
             this.NextReceivingId = this.NextSendingId = UInt64.MinValue;
+            this.MessageStack = new List<Message>();
         }
 
         public UdpRemoteConnection(IPEndPoint endPoint)
@@ -56,6 +62,30 @@ namespace Anjril.Common.Network.UdpImpl
                 throw new CannotSendException(this);
 
             this.Sender.Send(message, this);
+        }
+
+        internal void IncrementReceivingId()
+        {
+            if (this.NextReceivingId == UInt64.MaxValue)
+            {
+                this.NextReceivingId = UInt64.MinValue;
+            }
+            else
+            {
+                this.NextReceivingId++;
+            }
+        }
+
+        internal void IncrementSendingId()
+        {
+            if (this.NextSendingId == UInt64.MaxValue)
+            {
+                this.NextSendingId = UInt64.MinValue;
+            }
+            else
+            {
+                this.NextSendingId++;
+            }
         }
 
         #endregion

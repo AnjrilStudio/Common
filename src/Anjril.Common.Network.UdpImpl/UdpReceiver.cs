@@ -67,7 +67,8 @@ namespace Anjril.Common.Network.UdpImpl
 
         public void StopListening()
         {
-            this.Dispose();
+            this.Stop = true;
+            this.Listener.Close();
         }
 
         #endregion
@@ -96,7 +97,29 @@ namespace Anjril.Common.Network.UdpImpl
                     {
                         var remoteConnection = new UdpRemoteConnection(endPoint);
 
-                        this.OnReceive(remoteConnection, message);
+#if WAN
+                        // In WAN mode, we simulate the disorder of packages arrival
+                        // 1 package in 3 will be effectively received 200ms after its true arrival
+
+                        var random = new Random();
+
+                        if (random.Next(3) == 0)
+                        {
+                            Console.WriteLine(@"/!\ Package Delayed /!\");
+
+                            new Thread(new ThreadStart(() =>
+                            {
+                                Thread.Sleep(200);
+                                this.OnReceive(remoteConnection, message);
+                            }));
+                        }
+                        else
+                        {
+#endif
+                            this.OnReceive(remoteConnection, message);
+#if WAN
+                        }
+#endif
                     }
                 }
                 catch (SocketException e)
@@ -128,8 +151,8 @@ namespace Anjril.Common.Network.UdpImpl
             {
                 if (disposing)
                 {
-                    this.Stop = true;
-                    this.Listener.Close();
+                    if (IsListening)
+                        this.StopListening();
                 }
 
                 disposedValue = true;

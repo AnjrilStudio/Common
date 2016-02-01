@@ -97,13 +97,7 @@ namespace Anjril.Common.Network.UdpImpl
 
             this.SendWithAcquittal(msg, destination);
 
-            // if we reach the ulong end, we restart from 0 
-            if (nextId == UInt64.MaxValue)
-                nextId = UInt64.MinValue;
-            else
-                nextId++;
-
-            udpRemote.NextSendingId = nextId;
+            udpRemote.IncrementSendingId();
         }
 
         #endregion
@@ -122,7 +116,7 @@ namespace Anjril.Common.Network.UdpImpl
             if(msg.Command != Command.Acquittal)
                 this.SendAcquittal(msg, sender);
 
-            var connectedRemote = this.GetConnectedRemote(sender);
+            var connectedRemote = this.GetConnectedRemote(sender).ToUdpRemoteConnection();
 
             switch(msg.Command)
             {
@@ -133,7 +127,14 @@ namespace Anjril.Common.Network.UdpImpl
                         this.State.PendingAcquittals.Remove(acquittal);
                     break;
                 case Command.Connect:
-                    if (this.OnConnection != null) this.OnConnection(connectedRemote, msg.InnerMessage);
+                    if (connectedRemote == null)
+                    {
+                        // TODO : manage connection denied
+                        sender.ToUdpRemoteConnection().Sender = this;
+                        this.State.RemoteConnections.Add(sender);
+                        
+                        if (this.OnConnection != null) this.OnConnection(connectedRemote, msg.InnerMessage);
+                    }
                     break;
                 case Command.ConnectionGranted:
                     if (this.OnConnected != null) this.OnConnected(connectedRemote, msg.InnerMessage);
@@ -153,7 +154,23 @@ namespace Anjril.Common.Network.UdpImpl
                 default:
                     //if (connectedRemote != null)
                     //{
-                        if (this.OnReceive != null) this.OnReceive(connectedRemote, message);
+                    if (connectedRemote.NextReceivingId == msg.Id)
+                    {
+                        this.DeliverMessage(msg, connectedRemote);
+
+                        for(
+                            var stackedMessage = connectedRemote.MessageStack.FirstOrDefault(m => m.Id == connectedRemote.NextReceivingId);
+                            stackedMessage != null;
+                            stackedMessage = connectedRemote.MessageStack.FirstOrDefault(m => m.Id == connectedRemote.NextReceivingId)
+                        )
+                        {
+                            this.DeliverMessage(stackedMessage, connectedRemote);
+                        }
+                    }
+                    else
+                    {
+                        connectedRemote.MessageStack.Add(msg);
+                    }
                     //}
                     //else
                     //{
@@ -249,6 +266,22 @@ namespace Anjril.Common.Network.UdpImpl
             }
 
             #endregion
+        }
+
+        /// <summary>
+        /// Raises the OnReceive event to effectively deliver a message
+        /// </summary>
+        /// <param name="message">The message to deliver</param>
+        /// <param name="recipient">The recipient of the message</param>
+        private void DeliverMessage(Message message, UdpRemoteConnection recipient)
+        {
+            if (this.OnReceive != null)
+            {
+                this.OnReceive(recipient, message.InnerMessage);
+            }
+
+            recipient.IncrementReceivingId();
+            recipient.MessageStack.Remove(message);
         }
 
         #endregion
