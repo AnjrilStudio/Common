@@ -1,6 +1,8 @@
 ﻿namespace Anjril.Common.Network
 {
-    public interface ISocket : IReceiver, ISender
+    using System;
+
+    public interface ISocket : IDisposable
     {
         #region events
 
@@ -10,24 +12,45 @@
         event MessageHandler OnConnection;
 
         /// <summary>
-        /// Fires when a connection request is successful
+        /// Fires when a message arrives
         /// </summary>
-        event MessageHandler OnConnected;
+        event MessageHandler OnReceive;
+
+        #endregion
+
+        #region properties
 
         /// <summary>
-        /// Fires when a connection request fails
+        /// The port on which the socket is listening
         /// </summary>
-        event MessageHandler OnConnectionFailed;
+        int Port { get; }
+
+        /// <summary>
+        /// Gets a value that indicates whether the socket is already listening
+        /// </summary>
+        bool IsListening { get; }
 
         #endregion
 
         #region methods
 
         /// <summary>
-        /// Connect to the specified remote connection
+        /// Starts listening for messages on the <see cref="ListeningPort"/>
         /// </summary>
-        /// <param name="pair">the pair to connect with</param>
-        void Connect(IRemoteConnection pair);
+        /// <exception cref="Exceptions.AlreadyListeningException">If the socket is already listening</exception>
+        void StartListening();
+
+        /// <summary>
+        /// Stops the receiver from listening.
+        /// </summary>
+        /// <remarks>A stopped receiver won't be able to listen again. You will have to create a new instance to listen again.</remarks>
+        void StopListening();
+
+        /// <summary>
+        /// Broadcasts the specified message to all the connected clients.
+        /// </summary>
+        /// <param name="message">The message to broadcast</param>
+        void Broadcast(string message);
 
         #endregion
     }

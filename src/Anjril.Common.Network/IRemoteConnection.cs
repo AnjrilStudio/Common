@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Anjril.Common.Network.Exceptions;
-
-namespace Anjril.Common.Network
+﻿namespace Anjril.Common.Network
 {
     public interface IRemoteConnection
     {
@@ -33,7 +27,7 @@ namespace Anjril.Common.Network
         /// Send a message to the remote connection
         /// </summary>
         /// <param name="message">the message to send</param>
-        /// <exception cref="CannotSendException">The receiver can't send a message</exception>
+        /// <exception cref="Exceptions.CannotSendException">If the implementation can't send a message</exception>
         void Send(string message);
 
         #endregion

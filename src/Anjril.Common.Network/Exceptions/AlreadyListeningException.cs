@@ -9,16 +9,16 @@ namespace Anjril.Common.Network.Exceptions
     {
         #region properties
 
-        public IReceiver Receiver { get; set; }
+        public ISocket Socket{ get; set; }
 
         #endregion
 
         #region constructors
 
-        public AlreadyListeningException(IReceiver receiver)
-            : base("This receiver is already listening.")
+        public AlreadyListeningException(ISocket socket)
+            : base("This socket is already listening.")
         {
-            this.Receiver = receiver;
+            this.Socket = socket;
         }
 
         #endregion

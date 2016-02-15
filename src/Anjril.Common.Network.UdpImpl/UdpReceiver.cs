@@ -1,19 +1,15 @@
-﻿using Anjril.Common.Network.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading;
-
-namespace Anjril.Common.Network.UdpImpl
+﻿namespace Anjril.Common.Network.UdpImpl
 {
+    using System.Net;
+    using System.Net.Sockets;
+    using System.Text;
+    using System.Threading;
+
     public class UdpReceiver : IReceiver
     {
         #region properties
 
-        public int ListeningPort { get { return (this.Listener.Client.LocalEndPoint as IPEndPoint).Port; } }
+        public int Port { get { return (this.Listener.Client.LocalEndPoint as IPEndPoint).Port; } }
         public bool IsListening { get; private set; }
 
         #endregion
@@ -56,10 +52,10 @@ namespace Anjril.Common.Network.UdpImpl
 
         public void StartListening()
         {
-            if(this.IsListening)
-            {
-                throw new AlreadyListeningException(this);
-            }
+            //if(this.IsListening)
+            //{
+            //    throw new AlreadyListeningException(this);
+            //}
 
             var thread = new Thread(new ThreadStart(this.Listening));
             thread.Start();

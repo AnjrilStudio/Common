@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Anjril.Common.Network
+﻿namespace Anjril.Common.Network.UdpImpl
 {
-    public interface IReceiver : IDisposable
+    using System;
+
+    internal interface IReceiver : IDisposable
     {
         #region properties
 
         /// <summary>
         /// The port on which the receiver is listening
         /// </summary>
-        int ListeningPort { get; }
+        int Port { get; }
 
         /// <summary>
         /// Gets a value that indicates whether the receiver is already listening

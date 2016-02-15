@@ -40,12 +40,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Events.cs" />
+    <Compile Include="Exceptions\AlreadyConnectedException.cs" />
     <Compile Include="Exceptions\AlreadyListeningException.cs" />
     <Compile Include="Exceptions\CannotSendException.cs" />
-    <Compile Include="IReceiver.cs" />
-    <Compile Include="ISender.cs" />
+    <Compile Include="Exceptions\NotConnectedException.cs" />
     <Compile Include="ISocket.cs" />
     <Compile Include="IRemoteConnection.cs" />
+    <Compile Include="ISocketClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />

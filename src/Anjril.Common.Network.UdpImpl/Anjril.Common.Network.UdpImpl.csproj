@@ -47,15 +47,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Command.cs" />
+    <Compile Include="IReceiver.cs" />
+    <Compile Include="ISender.cs" />
     <Compile Include="Message.cs" />
-    <Compile Include="RemoteConnectionExtensions.cs" />
+    <Compile Include="OLD\RemoteConnectionExtensions.cs" />
     <Compile Include="State\AcquittalRequest.cs" />
     <Compile Include="State\BaseRequest.cs" />
     <Compile Include="State\ConnectionRequest.cs" />
-    <Compile Include="Exceptions\NotConnectedException.cs" />
     <Compile Include="State\PingRequest.cs" />
-    <Compile Include="UdpRemoteConnection.cs" />
-    <Compile Include="UdpSocket.cs" />
+    <Compile Include="OLD\UdpRemoteConnection.cs" />
+    <Compile Include="OLD\UdpSocket.cs" />
     <Compile Include="UdpReceiver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UdpSender.cs" />
@@ -67,6 +68,7 @@
       <Name>Anjril.Common.Network</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

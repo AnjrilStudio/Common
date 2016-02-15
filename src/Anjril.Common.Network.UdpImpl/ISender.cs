@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-
-namespace Anjril.Common.Network
+﻿namespace Anjril.Common.Network.UdpImpl
 {
-    public interface ISender : IDisposable
+    using System;
+
+    internal interface ISender : IDisposable
     {
         #region methods
 
@@ -15,7 +11,7 @@ namespace Anjril.Common.Network
         /// </summary>
         /// <param name="message">the message to send</param>
         /// <param name="destination">the message destination</param>
-        void Send(string message, IRemoteConnection destination);
+        void Send(Message message, IRemoteConnection destination);
 
         #endregion
     }
