@@ -1,4 +1,4 @@
-﻿namespace Anjril.Common.Network.UdpImpl
+﻿namespace Anjril.Common.Network.UdpImpl.Internal
 {
     using System;
 
@@ -23,7 +23,7 @@
         /// <summary>
         /// Fires when a message arrives
         /// </summary>
-        event MessageHandler OnReceive;
+        event InternalMessageHandler OnReceive;
 
         #endregion
 

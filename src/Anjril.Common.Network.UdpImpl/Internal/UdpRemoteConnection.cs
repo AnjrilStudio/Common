@@ -1,19 +1,19 @@
-﻿using Anjril.Common.Network.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-
-namespace Anjril.Common.Network.UdpImpl
+﻿namespace Anjril.Common.Network.UdpImpl.Internal
 {
+    using Anjril.Common.Network.Exceptions;
+    using System;
+    using System.Collections.Generic;
+    using System.Net;
+    using System.Linq;
+
     public class UdpRemoteConnection : IRemoteConnection
     {
         #region properties
 
-        public string IPAddress { get; private set; }
-        public int Port { get; private set; }
-        public bool CanSend { get { return this.Sender != null; } }
+        public string IPAddress { get { return this.EndPoint.Address.ToString(); } }
+        public int Port { get { return this.EndPoint.Port; } }
+
+        internal IPEndPoint EndPoint { get; private set; }
 
         /// <summary>
         /// The sender used to send messages to this remote connection
@@ -40,17 +40,16 @@ namespace Anjril.Common.Network.UdpImpl
         #region constructors
 
         public UdpRemoteConnection(string ipAddress, int port)
+            : this(new IPEndPoint(UdpRemoteConnection.Parse(ipAddress), port))
+        { }
+
+        public UdpRemoteConnection(IPEndPoint endPoint)
         {
-            this.IPAddress = ipAddress;
-            this.Port = port;
+            this.EndPoint = endPoint;
 
             this.NextReceivingId = this.NextSendingId = UInt64.MinValue;
             this.MessageStack = new List<Message>();
         }
-
-        public UdpRemoteConnection(IPEndPoint endPoint)
-            : this(endPoint.Address.ToString(), endPoint.Port)
-        { }
 
         #endregion
 
@@ -58,10 +57,22 @@ namespace Anjril.Common.Network.UdpImpl
 
         public void Send(string message)
         {
-            if (!this.CanSend)
-                throw new CannotSendException(this);
+            // TODO : calculate next id
+            Message msg = new Message(0, Command.Other, message);
 
+            this.Send(msg);
+        }
+
+        internal void Send(Message message)
+        {
             this.Sender.Send(message, this);
+        }
+
+        private static IPAddress Parse(string ipAddress)
+        {
+            var addressPart = ipAddress.Split('.');
+
+            return new IPAddress(addressPart.Select(part => byte.Parse(part)).ToArray());
         }
 
         internal void IncrementReceivingId()
@@ -86,6 +97,27 @@ namespace Anjril.Common.Network.UdpImpl
             {
                 this.NextSendingId++;
             }
+        }
+
+        #endregion
+
+        #region overrided methods
+
+        public override bool Equals(object obj)
+        {
+            if(!(obj is IRemoteConnection))
+            {
+                return false;
+            }
+
+            IRemoteConnection target = (IRemoteConnection)obj;
+
+            return target.IPAddress == this.IPAddress && target.Port == this.Port;
+        }
+
+        public override int GetHashCode()
+        {
+            return this.EndPoint.GetHashCode();
         }
 
         #endregion

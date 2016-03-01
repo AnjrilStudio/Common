@@ -7,6 +7,7 @@ using Anjril.Common.Network.UdpImpl;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Anjril.Common.Network.UdpImpl.Internal;
 
 namespace Anjril.Common.Network.Tests
 {
@@ -27,13 +28,12 @@ namespace Anjril.Common.Network.Tests
         //
         #endregion
 
-        public IReceiver Receiver { get; set; }
-        public UdpClient Sender { get; set; }
-        public int ListeningPort { get; private set; }
-        public int SendingPort { get; private set; }
-
-        public string MessageReceived { get; set; }
-        public IRemoteConnection MessageOrigin { get; set; }
+        private IReceiver Receiver { get; set; }
+        private UdpClient Sender { get; set; }
+        private int ListeningPort { get; set; }
+        private int SendingPort { get; set; }
+        private Message MessageReceived { get; set; }
+        private IRemoteConnection MessageOrigin { get; set; }
 
         public UdpReceiverTest()
         {
@@ -51,25 +51,43 @@ namespace Anjril.Common.Network.Tests
             this.MessageReceived = null;
         }
 
+        private void OnMessageReceived(IRemoteConnection sender, Message message)
+        {
+            this.MessageOrigin = sender;
+            this.MessageReceived = message;
+        }
+
         [TestMethod]
         public void TestReceive()
         {
-            var message = "This is a test";
+            var message = new Message(1, Command.Other, "This is a test");
 
             this.Receiver.StartListening();
+            var aquittement = this.Sender.ReceiveAsync();
 
-            var msg = Encoding.ASCII.GetBytes(message);
+            var msg = Encoding.ASCII.GetBytes(message.ToString());
 
             this.Sender.Send(msg, msg.Length, new IPEndPoint(IPAddress.Parse("127.0.0.1"), this.ListeningPort));
 
-            while(String.IsNullOrEmpty(this.MessageReceived))
+            while(this.MessageReceived == null)
             {
                 Thread.Sleep(10);
             }
 
-            Assert.AreEqual(message, this.MessageReceived, "The received message is different from the sended one.");
+            Assert.AreEqual(message.Id, this.MessageReceived.Id, "The received message's id is different from the sended one.");
+            Assert.AreEqual(message.Command, this.MessageReceived.Command, "The received message's command is different from the sended one.");
+            Assert.AreEqual(message.InnerMessage, this.MessageReceived.InnerMessage, "The received message's inner message is different from the sended one.");
             Assert.AreEqual("127.0.0.1", this.MessageOrigin.IPAddress, "The sender didn't send its message from the expected address.");
             Assert.AreEqual(this.SendingPort, this.MessageOrigin.Port, "The sender didn't send its message from the expected port.");
+
+            aquittement.Wait();
+
+            var remoteEndPoint = aquittement.Result.RemoteEndPoint;
+            var response = new Message(Encoding.ASCII.GetString(aquittement.Result.Buffer));
+
+            Assert.AreEqual(this.ListeningPort, remoteEndPoint.Port);
+            Assert.AreEqual(Command.Acquittal, response.Command);
+            Assert.AreEqual(message.Id, response.Id);
         }
 
         [TestMethod]
@@ -92,13 +110,7 @@ namespace Anjril.Common.Network.Tests
             // Wait a little bit to ensure that no message has been received before ending the test
             Thread.Sleep(500);
 
-            Assert.IsTrue(String.IsNullOrEmpty(this.MessageReceived), "A message has been received after the call to StopListening.");
-        }
-
-        private void OnMessageReceived(IRemoteConnection sender, string message)
-        {
-            this.MessageOrigin = sender;
-            this.MessageReceived = message;
+            Assert.IsTrue(this.MessageReceived == null, "A message has been received after the call to StopListening.");
         }
 
         // Use TestCleanup to run code after each test has run

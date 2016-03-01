@@ -14,11 +14,6 @@
         /// </summary>
         int Port { get; }
 
-        /// <summary>
-        /// Gets a value that indicates whether this instance can send a message to the remote connection
-        /// </summary>
-        bool CanSend { get; }
-
         #endregion
 
         #region methods

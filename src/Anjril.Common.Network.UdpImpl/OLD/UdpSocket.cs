@@ -44,7 +44,7 @@ namespace Anjril.Common.Network.UdpImpl
             this.InternalUdpClient = new UdpClient(port);
 
             this.Receiver = new UdpReceiver(this.InternalUdpClient, MessageReceived);
-            this.Sender = new UdpSender(this.InternalUdpClient);
+            this.Sender = new UdpHelper(this.InternalUdpClient);
 
             this.OnConnection += onConnection;
             this.OnConnected += onConnected;
@@ -245,28 +245,6 @@ namespace Anjril.Common.Network.UdpImpl
             return this.GetConnectedRemote(remoteConnection) != null;
         }
 
-        /// <summary>
-        /// Callback called periodically to update the socket state (re-send unacquitted messages, ping connected remotes, etc)
-        /// </summary>
-        /// <param name="state"></param>
-        private void Update(object state)
-        {
-            var now = DateTime.Now;
-
-            #region acquittal management
-
-            var intervalBeforeResend = new TimeSpan(1000); // TODO : parameterize this parameter
-
-            var messageToResend = this.State.PendingAcquittals.Where(a => now - a.ShipmentDate > intervalBeforeResend).ToList();
-
-            foreach(var acquittal in messageToResend)
-            {
-                acquittal.ShipmentDate = now;
-                this.SendWithoutAcquittal(acquittal.Message, acquittal.RemoteConnection);
-            }
-
-            #endregion
-        }
 
         /// <summary>
         /// Raises the OnReceive event to effectively deliver a message

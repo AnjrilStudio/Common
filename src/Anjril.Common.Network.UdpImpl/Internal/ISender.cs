@@ -1,8 +1,6 @@
-﻿namespace Anjril.Common.Network.UdpImpl
+﻿namespace Anjril.Common.Network.UdpImpl.Internal
 {
-    using System;
-
-    internal interface ISender : IDisposable
+    internal interface ISender
     {
         #region methods
 

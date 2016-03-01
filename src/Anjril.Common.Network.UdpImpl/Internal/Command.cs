@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Anjril.Common.Network.UdpImpl
+﻿namespace Anjril.Common.Network.UdpImpl.Internal
 {
     internal enum Command
     {
@@ -14,6 +9,7 @@ namespace Anjril.Common.Network.UdpImpl
         ConnectionNeeded,
         Ping,
         Pong,
-        Other
+        Other,
+        AlreadyConnected
     }
 }

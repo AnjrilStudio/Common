@@ -46,21 +46,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Command.cs" />
-    <Compile Include="IReceiver.cs" />
-    <Compile Include="ISender.cs" />
-    <Compile Include="Message.cs" />
-    <Compile Include="OLD\RemoteConnectionExtensions.cs" />
+    <Compile Include="Internal\Command.cs" />
+    <Compile Include="Internal\Events.cs" />
+    <Compile Include="Internal\IReceiver.cs" />
+    <Compile Include="Internal\ISender.cs" />
+    <Compile Include="Internal\Message.cs" />
+    <Compile Include="UdpSocket.cs" />
+    <None Include="OLD\RemoteConnectionExtensions.cs" />
     <Compile Include="State\AcquittalRequest.cs" />
     <Compile Include="State\BaseRequest.cs" />
     <Compile Include="State\ConnectionRequest.cs" />
     <Compile Include="State\PingRequest.cs" />
-    <Compile Include="OLD\UdpRemoteConnection.cs" />
-    <Compile Include="OLD\UdpSocket.cs" />
-    <Compile Include="UdpReceiver.cs" />
+    <Compile Include="Internal\UdpRemoteConnection.cs" />
+    <None Include="OLD\UdpSocket.cs" />
+    <Compile Include="Internal\UdpReceiver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UdpSender.cs" />
+    <Compile Include="Internal\UdpHelper.cs" />
     <Compile Include="State\UdpSocketState.cs" />
+    <Compile Include="Internal\UdpSenderReceiver.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Anjril.Common.Network\Anjril.Common.Network.csproj">

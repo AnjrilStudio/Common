@@ -1,4 +1,4 @@
-﻿namespace Anjril.Common.Network.UdpImpl
+﻿namespace Anjril.Common.Network.UdpImpl.Internal
 {
     using System;
 
@@ -21,17 +21,29 @@
         /// </summary>
         public string InnerMessage { get; set; }
 
+        /// <summary>
+        /// Gets a value that indicate whether the message format is valid
+        /// </summary>
+        public bool IsValid { get; set; }
+
         #endregion
 
         #region constructors
 
         public Message(string originalMessage)
         {
-            var splitedMessage = originalMessage.Split('|');
+            try {
+                var splitedMessage = originalMessage.Split('|');
 
-            this.Id = UInt64.Parse(splitedMessage[0]);
-            this.Command = (Command)Enum.Parse(typeof(Command), splitedMessage[1]);
-            this.InnerMessage = splitedMessage[2];
+                this.Id = UInt64.Parse(splitedMessage[0]);
+                this.Command = (Command)Enum.Parse(typeof(Command), splitedMessage[1]);
+                this.InnerMessage = splitedMessage[2];
+                this.IsValid = true;
+            }
+            catch (Exception)
+            {
+                this.IsValid = false;
+            }
         }
 
         public Message(ulong id, Command command, string message)
@@ -39,6 +51,7 @@
             this.Id = id;
             this.Command = command;
             this.InnerMessage = message;
+            this.IsValid = true;
         }
 
         #endregion
