@@ -2,7 +2,7 @@
 {
     internal enum Command
     {
-        Acquittal,
+        Acknowledgment,
         Connect,
         ConnectionGranted,
         ConnectionRefused,

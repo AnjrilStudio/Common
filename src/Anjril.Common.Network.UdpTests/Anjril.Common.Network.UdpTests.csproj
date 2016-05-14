@@ -6,8 +6,8 @@
     <ProjectGuid>{2ED5AFB1-952A-4080-BA97-C9786568BE6F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Anjril.Common.Network.Tests</RootNamespace>
-    <AssemblyName>Anjril.Common.Network.Tests</AssemblyName>
+    <RootNamespace>Anjril.Common.Network.UdpTests</RootNamespace>
+    <AssemblyName>Anjril.Common.Network.UdpTests</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -55,9 +55,10 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="UdpReceiverTest.cs" />
+    <Compile Include="BasicSocketHelperTest.cs" />
+    <Compile Include="UdpRemoteConnectionTest.cs" />
+    <Compile Include="UdpHelperTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UdpSenderReceiverTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Anjril.Common.Network.UdpImpl\Anjril.Common.Network.UdpImpl.csproj">

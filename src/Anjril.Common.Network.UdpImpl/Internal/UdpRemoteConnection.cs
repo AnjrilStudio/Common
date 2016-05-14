@@ -1,51 +1,53 @@
 ﻿namespace Anjril.Common.Network.UdpImpl.Internal
 {
-    using Anjril.Common.Network.Exceptions;
     using System;
     using System.Collections.Generic;
     using System.Net;
-    using System.Linq;
 
-    public class UdpRemoteConnection : IRemoteConnection
+    internal class UdpRemoteConnection : IRemoteConnection
     {
         #region properties
 
         public string IPAddress { get { return this.EndPoint.Address.ToString(); } }
         public int Port { get { return this.EndPoint.Port; } }
+        
+        #endregion
 
-        internal IPEndPoint EndPoint { get; private set; }
+        #region private properties
 
         /// <summary>
-        /// The sender used to send messages to this remote connection
+        /// The underlying endpoint used by this UDP implementation
         /// </summary>
-        internal ISender Sender { get; set; }
+        internal IPEndPoint EndPoint { get; set; }
+
+        /// <summary>
+        /// The SocketHelper used to send messages to this remote connection
+        /// </summary>
+        internal ISocketHelper SocketHelper { get; set; }
 
         /// <summary>
         /// The id of the next message to send
         /// </summary>
-        internal ulong NextSendingId { get; private set; }
+        internal ulong NextSendingId { get; set; }
 
         /// <summary>
         /// The expected id of the next message
         /// </summary>
-        internal ulong NextReceivingId { get; private set; }
+        internal ulong NextReceivingId { get; set; }
 
         /// <summary>
         /// The list of arrived message, waiting for former message not arrived yet
         /// </summary>
-        internal IList<Message> MessageStack { get; set; }
+        private IList<Message> MessageStack { get; set; }
 
         #endregion
 
         #region constructors
 
-        public UdpRemoteConnection(string ipAddress, int port)
-            : this(new IPEndPoint(UdpRemoteConnection.Parse(ipAddress), port))
-        { }
-
-        public UdpRemoteConnection(IPEndPoint endPoint)
+        public UdpRemoteConnection(IPEndPoint endPoint, ISocketHelper socketHelper)
         {
             this.EndPoint = endPoint;
+            this.SocketHelper = socketHelper;
 
             this.NextReceivingId = this.NextSendingId = UInt64.MinValue;
             this.MessageStack = new List<Message>();
@@ -57,22 +59,15 @@
 
         public void Send(string message)
         {
-            // TODO : calculate next id
-            Message msg = new Message(0, Command.Other, message);
+            Message msg = new Message(this.NextSendingId, Command.Other, message);
+            this.IncrementSendingId();
 
             this.Send(msg);
         }
 
         internal void Send(Message message)
         {
-            this.Sender.Send(message, this);
-        }
-
-        private static IPAddress Parse(string ipAddress)
-        {
-            var addressPart = ipAddress.Split('.');
-
-            return new IPAddress(addressPart.Select(part => byte.Parse(part)).ToArray());
+            this.SocketHelper.Send(message, this);
         }
 
         internal void IncrementReceivingId()
@@ -101,18 +96,16 @@
 
         #endregion
 
-        #region overrided methods
+        #region overridden methods
 
         public override bool Equals(object obj)
         {
-            if(!(obj is IRemoteConnection))
-            {
+            if (obj == null || !(obj is IRemoteConnection))
                 return false;
-            }
 
-            IRemoteConnection target = (IRemoteConnection)obj;
+            IRemoteConnection other = (IRemoteConnection)obj;
 
-            return target.IPAddress == this.IPAddress && target.Port == this.Port;
+            return other.IPAddress == this.IPAddress && other.Port == this.Port;
         }
 
         public override int GetHashCode()

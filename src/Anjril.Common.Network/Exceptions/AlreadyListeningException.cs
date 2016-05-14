@@ -7,19 +7,14 @@ namespace Anjril.Common.Network.Exceptions
 {
     public class AlreadyListeningException : Exception
     {
-        #region properties
-
-        public ISocket Socket{ get; set; }
-
-        #endregion
-
         #region constructors
 
-        public AlreadyListeningException(ISocket socket)
+        /// <summary>
+        /// Instantiates a new already listening exception.
+        /// </summary>
+        public AlreadyListeningException()
             : base("This socket is already listening.")
-        {
-            this.Socket = socket;
-        }
+        { }
 
         #endregion
     }

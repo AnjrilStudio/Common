@@ -4,20 +4,6 @@
 
     public interface ISocket : IDisposable
     {
-        #region events
-
-        /// <summary>
-        /// Fires when a connection request arrives
-        /// </summary>
-        event MessageHandler OnConnection;
-
-        /// <summary>
-        /// Fires when a message arrives
-        /// </summary>
-        event MessageHandler OnReceive;
-
-        #endregion
-
         #region properties
 
         /// <summary>
@@ -26,7 +12,7 @@
         int Port { get; }
 
         /// <summary>
-        /// Gets a value that indicates whether the socket is already listening
+        /// Gets a value that indicates whether the socket is listening
         /// </summary>
         bool IsListening { get; }
 
@@ -37,13 +23,15 @@
         /// <summary>
         /// Starts listening for messages on the <see cref="ListeningPort"/>
         /// </summary>
+        /// <param name="onConnectionRequested">the delegate that is executed when a connection request arrives</param>
+        /// <param name="onMessageReceived">the delegate that is executed when a message from a connected client arrives</param>
+        /// <param name="onDisconnect">the delegate that is executed when a remote is disconnected</param>
         /// <exception cref="Exceptions.AlreadyListeningException">If the socket is already listening</exception>
-        void StartListening();
+        void StartListening(ConnectionHandler onConnectionRequested, MessageHandler onMessageReceived, DisconnectionHandler onDisconnect);
 
         /// <summary>
         /// Stops the receiver from listening.
         /// </summary>
-        /// <remarks>A stopped receiver won't be able to listen again. You will have to create a new instance to listen again.</remarks>
         void StopListening();
 
         /// <summary>
