@@ -5,322 +5,327 @@ using System.Net;
 using Anjril.Common.Network.TcpImpl;
 using System.Threading;
 using System.Text;
+using Anjril.Common.Network.Exceptions;
 using System.Threading.Tasks;
 using Anjril.Common.Network.TcpImpl.Internals;
-using Anjril.Common.Network.Exceptions;
+using System.Diagnostics;
 
 namespace Anjril.Common.Network.TcpTests
 {
     [TestClass]
     public class TcpSocketClientConnectTests
     {
-        private string Separator { get; set; }
+        private const int SERVER_PORT = 15000;
+        private const int CLIENT_PORT = 16000;
+        private const string SEPARATOR = "<sep>";
+        private const string LOCALHOST = "127.0.0.1";
+
         private TcpSocketClient Tested { get; set; }
         private TcpListener TesterListener { get; set; }
+        private TcpRemoteConnection Tester { get; set; }
 
         [TestInitialize]
         public void MyTestInitialize()
         {
-            this.Separator = "<sep>";
-
-            this.Tested = new TcpSocketClient(16000, this.Separator);
-
-            var testerEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 15000);
-            this.TesterListener = new TcpListener(testerEndPoint);
+            this.TesterListener = new TcpListener(new IPEndPoint(IPAddress.Parse(LOCALHOST), SERVER_PORT));
+            this.Tested = new TcpSocketClient(CLIENT_PORT, SEPARATOR);
 
             this.TesterListener.Start();
+        }
+
+        private Message ReceiveMessage()
+        {
+            string message = null;
+            var chrono = Stopwatch.StartNew();
+
+            while (String.IsNullOrWhiteSpace(message))
+            {
+                message = this.Tester.Receive();
+
+                if (chrono.ElapsedMilliseconds > 5000)
+                {
+                    chrono.Stop();
+                    Assert.Fail("A message was expected");
+                }
+            }
+
+            chrono.Stop();
+            return new Message(message);
         }
 
         [TestMethod]
         public void TestConnectOk()
         {
-            Task<TcpClient> connectionRequest = this.TesterListener.AcceptTcpClientAsync();
+            var request = "Connection";
+            var response = "Granted";
 
-            var test = Task.Run(() =>
+            var connectionRequest = this.TesterListener.AcceptTcpClientAsync();
+            var connectionResponse = Task.Run(() => this.Tested.Connect(LOCALHOST, SERVER_PORT, null, request));
+
+            // wait until the tester receive the connection request
+            connectionRequest.Wait(2000);
+
+            if (!connectionRequest.IsCompleted)
             {
-                var response = this.Tested.Connect("127.0.0.1", 15000, null, "Yolo");
-
-                Assert.AreEqual("Ok", response);
-                Assert.IsTrue(this.Tested.IsConnected);
-            });
-
-            // Wait until the TCP connection request arrives to the tester
-            connectionRequest.Wait();
-
-            var remoteTester = new TcpRemoteConnection(connectionRequest.Result, this.Separator);
-            Message message = null;
-
-            // Wait until the effective connection request arrives to the tester
-            while (message == null)
-            {
-                string messageStr = remoteTester.Receive();
-                if (!String.IsNullOrWhiteSpace(messageStr))
-                {
-                    message = new Message(messageStr);
-                }
-                else
-                {
-                    Thread.Sleep(50);
-                }
+                connectionResponse.Wait();
             }
 
-            Assert.AreEqual(Command.ConnectionRequest, message.Command);
-            Assert.AreEqual("Yolo", message.InnerMessage);
+            this.Tester = new TcpRemoteConnection(connectionRequest.Result, SEPARATOR);
 
-            remoteTester.Send(new Message(Command.ConnectionGranted, "Ok").ToString());
+            var messageRequest = this.ReceiveMessage();
 
-            // we wait until the test ends
-            test.Wait();
+            Assert.IsTrue(messageRequest.IsValid);
+            Assert.AreEqual(Command.ConnectionRequest, messageRequest.Command);
+            Assert.AreEqual(request, messageRequest.InnerMessage);
 
-            connectionRequest.Result.Dispose();
-        }
+            this.Tester.Send(new Message(Command.ConnectionGranted, response).ToString());
 
-        [TestMethod]
-        public void TestConnectTimeout()
-        {
-            Task<TcpClient> connectionRequest = this.TesterListener.AcceptTcpClientAsync();
+            // wait until the tested receive the connection response
+            connectionResponse.Wait();
 
-            var test = Task.Run(() =>
-            {
-                try
-                {
-                    this.Tested.Connect("127.0.0.1", 15000, null, "Yolo");
-                    Assert.Fail();
-                }
-                catch (ConnectionFailedException e)
-                {
-                    Assert.IsFalse(this.Tested.IsConnected);
-                    Assert.AreEqual(TypeConnectionFailed.Timeout, e.TypeErreur);
-                }
-                catch (Exception e)
-                {
-                    Assert.Fail(e.Message);
-                }
-            });
-
-            // Wait until the TCP connection request arrives to the tester
-            connectionRequest.Wait();
-
-            // We do nothing until the test end
-            test.Wait();
-
-            connectionRequest.Result.Dispose();
+            Assert.AreEqual(connectionResponse.Result, response);
+            Assert.IsTrue(this.Tested.IsConnected);
         }
 
         [TestMethod]
         public void TestConnectRefused()
         {
+            var request = "Connection";
+            var response = "Refused";
+
             var connectionRequest = this.TesterListener.AcceptTcpClientAsync();
+            var connectionResponse = Task.Run(() => this.Tested.Connect(LOCALHOST, SERVER_PORT, null, request));
 
-            var test = Task.Run(() =>
+            // wait until the tester receive the connection request
+            connectionRequest.Wait(2000);
+
+            if (!connectionRequest.IsCompleted)
             {
-                try
-                {
-                    this.Tested.Connect("127.0.0.1", 15000, null, "Yolo");
-                    Assert.Fail();
-                }
-                catch (ConnectionFailedException e)
-                {
-                    Assert.IsFalse(this.Tested.IsConnected);
-                    Assert.AreEqual("Ko", e.Message);
-                    Assert.AreEqual(TypeConnectionFailed.ConnectionRefused, e.TypeErreur);
-                }
-                catch (Exception e)
-                {
-                    Assert.Fail(e.Message);
-                }
-            });
-
-            // Wait until the TCP connection request arrives to the tester
-            connectionRequest.Wait();
-
-            var remoteTester = new TcpRemoteConnection(connectionRequest.Result, this.Separator);
-            Message message = null;
-
-            // Wait until the effective connection request arrives to the tester
-            while (message == null)
-            {
-                string messageStr = remoteTester.Receive();
-                if (!String.IsNullOrWhiteSpace(messageStr))
-                {
-                    message = new Message(messageStr);
-                }
-                else
-                {
-                    Thread.Sleep(50);
-                }
+                connectionResponse.Wait();
             }
 
-            Assert.AreEqual(Command.ConnectionRequest, message.Command);
-            Assert.AreEqual("Yolo", message.InnerMessage);
+            this.Tester = new TcpRemoteConnection(connectionRequest.Result, SEPARATOR);
 
-            remoteTester.Send(new Message(Command.ConnectionFailed, "Ko").ToString());
+            var messageRequest = this.ReceiveMessage();
 
-            test.Wait();
+            Assert.IsTrue(messageRequest.IsValid);
+            Assert.AreEqual(Command.ConnectionRequest, messageRequest.Command);
+            Assert.AreEqual(request, messageRequest.InnerMessage);
 
-            connectionRequest.Result.Dispose();
+            this.Tester.Send(new Message(Command.ConnectionFailed, response).ToString());
+
+            Thread.Sleep(200);
+
+            var disconnectionRequest = this.ReceiveMessage();
+
+            Assert.IsNotNull(disconnectionRequest);
+            Assert.IsTrue(disconnectionRequest.IsValid);
+            Assert.AreEqual(Command.Disconnection, disconnectionRequest.Command);
+
+            this.Tester.Send(new Message(Command.Disconnected, null).ToString());
+
+            this.Tester.TcpClient.Dispose();
+
+            try
+            {
+                // wait until the tested receive the connection response
+                connectionResponse.Wait();
+                Assert.Fail();
+            }
+            catch (AggregateException aggregateException)
+            {
+                var e = (ConnectionFailedException)aggregateException.InnerExceptions[0];
+
+                Assert.AreEqual(TypeConnectionFailed.ConnectionRefused, e.TypeErreur);
+                Assert.IsFalse(this.Tested.IsConnected);
+                Assert.AreEqual(response, e.Message);
+            }
         }
 
         [TestMethod]
-        public void TestConnectKo1()
+        public void TestConnectTimeout()
         {
+            var request = "Connection";
+
             var connectionRequest = this.TesterListener.AcceptTcpClientAsync();
+            var connectionResponse = Task.Run(() => this.Tested.Connect(LOCALHOST, SERVER_PORT, null, request));
 
-            var test = Task.Run(() =>
+            // wait until the tester receive the connection request
+            connectionRequest.Wait(2000);
+
+            if (!connectionRequest.IsCompleted)
             {
-                try
-                {
-                    this.Tested.Connect("127.0.0.1", 15000, null, "Yolo");
-                    Assert.Fail();
-                }
-                catch (ConnectionFailedException e)
-                {
-                    Assert.IsFalse(this.Tested.IsConnected);
-                    Assert.AreEqual(TypeConnectionFailed.Other, e.TypeErreur);
-                }
-                catch (Exception e)
-                {
-                    Assert.Fail(e.Message);
-                }
-            });
-
-            // Wait until the TCP connection request arrives to the tester
-            connectionRequest.Wait();
-
-            var remoteTester = new TcpRemoteConnection(connectionRequest.Result, this.Separator);
-            Message message = null;
-
-            // Wait until the effective connection request arrives to the tester
-            while (message == null)
-            {
-                string messageStr = remoteTester.Receive();
-                if (!String.IsNullOrWhiteSpace(messageStr))
-                {
-                    message = new Message(messageStr);
-                }
-                else
-                {
-                    Thread.Sleep(50);
-                }
+                connectionResponse.Wait();
             }
 
-            Assert.AreEqual(Command.ConnectionRequest, message.Command);
-            Assert.AreEqual("Yolo", message.InnerMessage);
+            this.Tester = new TcpRemoteConnection(connectionRequest.Result, SEPARATOR);
 
-            remoteTester.Send(new Message(Command.Message, "TROLOLO").ToString());
+            var messageRequest = this.ReceiveMessage();
 
-            test.Wait();
+            Assert.IsTrue(messageRequest.IsValid);
+            Assert.AreEqual(Command.ConnectionRequest, messageRequest.Command);
+            Assert.AreEqual(request, messageRequest.InnerMessage);
 
-            connectionRequest.Result.Dispose();
+            var disconnectionRequest = this.ReceiveMessage();
+
+            Assert.IsNotNull(disconnectionRequest);
+            Assert.IsTrue(disconnectionRequest.IsValid);
+            Assert.AreEqual(Command.Disconnection, disconnectionRequest.Command);
+
+            this.Tester.Send(new Message(Command.Disconnected, null).ToString());
+
+            this.Tester.TcpClient.Dispose();
+
+            try
+            {
+                // wait until the tested receive the connection response
+                connectionResponse.Wait();
+                Assert.Fail();
+            }
+            catch (AggregateException aggregateException)
+            {
+                var e = (ConnectionFailedException)aggregateException.InnerExceptions[0];
+
+                Assert.AreEqual(TypeConnectionFailed.Timeout, e.TypeErreur);
+                Assert.IsFalse(this.Tested.IsConnected);
+            }
         }
 
         [TestMethod]
-        public void TestConnectKo2()
+        public void TestConnectFailed1()
         {
+            var request = "Connection";
+
             var connectionRequest = this.TesterListener.AcceptTcpClientAsync();
+            var connectionResponse = Task.Run(() => this.Tested.Connect(LOCALHOST, SERVER_PORT, null, request));
 
-            var test = Task.Run(() =>
+            // wait until the tester receive the connection request
+            connectionRequest.Wait(2000);
+
+            if (!connectionRequest.IsCompleted)
             {
-                try
-                {
-                    this.Tested.Connect("127.0.0.1", 15000, null, "Yolo");
-                    Assert.Fail();
-                }
-                catch (ConnectionFailedException e)
-                {
-                    Assert.IsFalse(this.Tested.IsConnected);
-                    Assert.AreEqual(TypeConnectionFailed.InvalidResponse, e.TypeErreur);
-                }
-                catch (Exception e)
-                {
-                    Assert.Fail(e.Message);
-                }
-            });
-
-            // Wait until the TCP connection request arrives to the tester
-            connectionRequest.Wait();
-
-            var remoteTester = new TcpRemoteConnection(connectionRequest.Result, this.Separator);
-            Message message = null;
-
-            // Wait until the effective connection request arrives to the tester
-            while (message == null)
-            {
-                string messageStr = remoteTester.Receive();
-                if (!String.IsNullOrWhiteSpace(messageStr))
-                {
-                    message = new Message(messageStr);
-                }
-                else
-                {
-                    Thread.Sleep(50);
-                }
+                connectionResponse.Wait();
             }
 
-            Assert.AreEqual(Command.ConnectionRequest, message.Command);
-            Assert.AreEqual("Yolo", message.InnerMessage);
+            this.Tester = new TcpRemoteConnection(connectionRequest.Result, SEPARATOR);
 
-            remoteTester.Send("TROLOLO");
+            var messageRequest = this.ReceiveMessage();
 
-            test.Wait();
+            Assert.IsTrue(messageRequest.IsValid);
+            Assert.AreEqual(Command.ConnectionRequest, messageRequest.Command);
+            Assert.AreEqual(request, messageRequest.InnerMessage);
 
-            connectionRequest.Result.Dispose();
+            this.Tester.Send(new Message(Command.Message, null).ToString());
+
+            Thread.Sleep(200);
+
+            var disconnectionRequest = this.ReceiveMessage();
+
+            Assert.IsNotNull(disconnectionRequest);
+            Assert.IsTrue(disconnectionRequest.IsValid);
+            Assert.AreEqual(Command.Disconnection, disconnectionRequest.Command);
+
+            this.Tester.Send(new Message(Command.Disconnected, null).ToString());
+
+            this.Tester.TcpClient.Dispose();
+
+            try
+            {
+                // wait until the tested receive the connection response
+                connectionResponse.Wait();
+                Assert.Fail();
+            }
+            catch (AggregateException aggregateException)
+            {
+                var e = (ConnectionFailedException)aggregateException.InnerExceptions[0];
+
+                Assert.AreEqual(TypeConnectionFailed.Other, e.TypeErreur);
+                Assert.IsFalse(this.Tested.IsConnected);
+            }
         }
 
         [TestMethod]
-        public void TestConnectKo3()
+        public void TestConnectFailed2()
         {
-            var test = Task.Run(() =>
-            {
-                try
-                {
-                    this.Tested.Connect("127.0.0.1", 15000, null, "Yolo");
-                    Assert.Fail();
-                }
-                catch (ConnectionFailedException e)
-                {
-                    Assert.IsFalse(this.Tested.IsConnected);
-                    Assert.AreEqual(TypeConnectionFailed.Timeout, e.TypeErreur);
-                }
-                catch (Exception e)
-                {
-                    Assert.Fail(e.Message);
-                }
-            });
+            var request = "Connection";
 
-            // we wait until the test ends
-            test.Wait();
+            var connectionRequest = this.TesterListener.AcceptTcpClientAsync();
+            var connectionResponse = Task.Run(() => this.Tested.Connect(LOCALHOST, SERVER_PORT, null, request));
+
+            // wait until the tester receive the connection request
+            connectionRequest.Wait(2000);
+
+            if (!connectionRequest.IsCompleted)
+            {
+                connectionResponse.Wait();
+            }
+
+            this.Tester = new TcpRemoteConnection(connectionRequest.Result, SEPARATOR);
+
+            var messageRequest = this.ReceiveMessage();
+
+            Assert.IsTrue(messageRequest.IsValid);
+            Assert.AreEqual(Command.ConnectionRequest, messageRequest.Command);
+            Assert.AreEqual(request, messageRequest.InnerMessage);
+
+            this.Tester.Send("This is an unvalid reponse");
+
+            Thread.Sleep(200);
+
+            var disconnectionRequest = this.ReceiveMessage();
+
+            Assert.IsNotNull(disconnectionRequest);
+            Assert.IsTrue(disconnectionRequest.IsValid);
+            Assert.AreEqual(Command.Disconnection, disconnectionRequest.Command);
+
+            this.Tester.Send(new Message(Command.Disconnected, null).ToString());
+
+            this.Tester.TcpClient.Dispose();
+
+            try
+            {
+                // wait until the tested receive the connection response
+                connectionResponse.Wait();
+                Assert.Fail();
+            }
+            catch (AggregateException aggregateException)
+            {
+                var e = (ConnectionFailedException)aggregateException.InnerExceptions[0];
+
+                Assert.AreEqual(TypeConnectionFailed.InvalidResponse, e.TypeErreur);
+                Assert.IsFalse(this.Tested.IsConnected);
+            }
         }
 
         [TestMethod]
-        public void TestConnectKo4()
+        public void TestConnectUnreachable()
         {
-            var test = Task.Run(() =>
-            {
-                try
-                {
-                    this.Tested.Connect("127.0.0.1", 17000, null, "Yolo");
-                    Assert.Fail();
-                }
-                catch (ConnectionFailedException e)
-                {
-                    Assert.IsFalse(this.Tested.IsConnected);
-                    Assert.AreEqual(TypeConnectionFailed.SocketUnreachable, e.TypeErreur);
-                }
-                catch (Exception e)
-                {
-                    Assert.Fail(e.Message);
-                }
-            });
+            var request = "Connection";
 
-            // we wait until the test ends
-            test.Wait();
+            var connectionResponse = Task.Run(() => this.Tested.Connect(LOCALHOST, 60000, null, request));
+
+            try
+            {
+                // wait until the tested receive the connection response
+                connectionResponse.Wait();
+                Assert.Fail();
+            }
+            catch (AggregateException aggregateException)
+            {
+                var e = (ConnectionFailedException)aggregateException.InnerExceptions[0];
+
+                Assert.AreEqual(TypeConnectionFailed.SocketUnreachable, e.TypeErreur);
+                Assert.IsFalse(this.Tested.IsConnected);
+            }
         }
 
         [TestCleanup]
         public void MyTestCleanup()
         {
             this.TesterListener.Stop();
+            this.TesterListener.Server.Dispose();
+            if (this.Tester != null)
+                this.Tester.TcpClient.Dispose();
             this.Tested.Dispose();
         }
     }

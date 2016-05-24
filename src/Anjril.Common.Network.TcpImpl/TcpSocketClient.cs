@@ -2,6 +2,7 @@
 using Anjril.Common.Network.TcpImpl.Internals;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -12,28 +13,9 @@ namespace Anjril.Common.Network.TcpImpl
 {
     public class TcpSocketClient : ISocketClient
     {
-        #region private fields
-
-        /// <summary>
-        /// A lock used to ensure the listening thread is not using the underlying socket when it is disposed
-        /// </summary>
-        private readonly object disposeLock = new Object();
-
-        #endregion
-
         #region properties
 
-        public bool IsConnected
-        {
-            get
-            {
-                if (this.Server.TcpClient.Client != null)
-                {
-                    return this.Server.TcpClient.Connected;
-                }
-                return false;
-            }
-        }
+        public bool IsConnected { get; private set; }
         public int Port { get { return (this.Server.TcpClient.Client.LocalEndPoint as IPEndPoint).Port; } }
 
         #endregion
@@ -64,6 +46,7 @@ namespace Anjril.Common.Network.TcpImpl
             var localEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), port);
             this.Server = new TcpRemoteConnection(new TcpClient(localEndPoint), separator);
             this.Stop = false;
+            this.IsConnected = false;
         }
 
         #endregion
@@ -93,64 +76,40 @@ namespace Anjril.Common.Network.TcpImpl
 
             this.Server.Send(msg.ToString());
 
-            Message response = null;
+            Message response = this.ReceiveMessage(1000); // TODO : parameterize timeout
 
-            for (int i = 0; response == null; i++)
+            if (response == null)
             {
-                var responseStr = this.Server.Receive();
-
-                if (String.IsNullOrEmpty(responseStr))
-                {
-                    if (i > 10) // TODO : parameterize the timeout
-                    {
-                        this.ResetConnection();
-                        throw new ConnectionFailedException();
-                    }
-
-                    Thread.Sleep(100);
-                }
-                else
-                {
-                    response = new Message(responseStr);
-                }
+                this.Disconnect(null, true);
+                throw new ConnectionFailedException();
             }
-
-            if (!response.IsValid)
+            else if (!response.IsValid)
             {
-                this.ResetConnection();
+                this.Disconnect(null, true);
                 throw new ConnectionFailedException(TypeConnectionFailed.InvalidResponse, "The response from the server was not at the expected format. Connection failed");
             }
             else if (response.Command == Command.ConnectionFailed)
             {
-                this.ResetConnection();
+                this.Disconnect(null, true);
                 throw new ConnectionFailedException(TypeConnectionFailed.ConnectionRefused, response.InnerMessage);
             }
             else if (response.Command != Command.ConnectionGranted)
             {
-                this.ResetConnection();
+                this.Disconnect(null, true);
                 throw new ConnectionFailedException(TypeConnectionFailed.Other, "An unexpected connection response has been received. Connection failed.");
             }
-            else
-            {
-                if (this.OnMessageReceived != null)
-                {
-                    this.OnMessageReceived(this.Server, response.InnerMessage);
-                }
 
-                var thread = new Thread(new ThreadStart(this.Listening));
-                thread.Start();
-            }
+            var thread = new Thread(new ThreadStart(this.Listening));
+            thread.Start();
+
+            this.IsConnected = true;
 
             return response.InnerMessage;
         }
 
         public void Disconnect(string message)
         {
-            Message disconnection = new Message(Command.Disconnection, message);
-
-            this.Server.Send(disconnection.ToString());
-
-            this.ResetConnection();
+            this.Disconnect(message, true);
         }
 
         public void Send(string message)
@@ -165,10 +124,42 @@ namespace Anjril.Common.Network.TcpImpl
         #region private methods
 
         /// <summary>
+        /// Tries to get a message from the socket during the specified time in milliseconds. If the timeout is reach, returns null
+        /// </summary>
+        /// <param name="timeout">The timeout</param>
+        /// <returns>The message received</returns>
+        private Message ReceiveMessage(int timeout)
+        {
+            var timer = Stopwatch.StartNew();
+
+            while (true)
+            {
+                var responseStr = this.Server.Receive();
+
+                if (String.IsNullOrEmpty(responseStr))
+                {
+                    if (timer.ElapsedMilliseconds > timeout)
+                    {
+                        timer.Stop();
+                        return null;
+                    }
+
+                    Thread.Sleep(100); // TODO : parameterize the tick
+                }
+                else
+                {
+                    return new Message(responseStr);
+                }
+            }
+        }
+
+        /// <summary>
         /// Listens for new incomming message and execute the <see cref="OnMessageReceived"/> delegate
         /// </summary>
         private void Listening()
         {
+            this.Stop = false;
+
             while (!this.Stop)
             {
                 string messageStr = this.Server.Receive();
@@ -187,18 +178,43 @@ namespace Anjril.Common.Network.TcpImpl
                     }
                 }
             }
+
+            this.IsConnected = false;
         }
 
         /// <summary>
-        /// Reset the connection, to be able to connect again to another server
+        /// Disconnect the current client from the server, with the specified justification
         /// </summary>
-        private void ResetConnection()
+        /// <param name="message">the justification for disconnecting</param>
+        /// <param name="reuse">specify if the client is able to connect to another server</param>
+        private void Disconnect(string message, bool reuse)
         {
             var port = this.Port;
-            var ipAddress = IPAddress.Parse("127.0.0.1");
+
+            this.Stop = true;
+
+            Message disconnection = new Message(Command.Disconnection, message);
+
+            this.Server.Send(disconnection.ToString());
+
+            // TODO : parameterize timeout
+            var response = this.ReceiveMessage(1000);
+
+            while (response != null && response.Command != Command.Disconnected)
+            {
+                // TODO : parameterize timeout
+                response = this.ReceiveMessage(1000);
+            }
 
             this.Server.TcpClient.Close();
-            this.Server.TcpClient = new TcpClient(new IPEndPoint(ipAddress, port));
+
+            if (reuse)
+            {
+                var ipAddress = IPAddress.Parse("127.0.0.1");
+
+                this.Server.TcpClient.Close();
+                this.Server.TcpClient = new TcpClient(new IPEndPoint(ipAddress, port));
+            }
         }
 
         #endregion
@@ -215,7 +231,14 @@ namespace Anjril.Common.Network.TcpImpl
 
                 if (disposing)
                 {
-                    this.Server.TcpClient.Close();
+                    if (this.IsConnected)
+                    {
+                        this.Disconnect(null, false);
+                    }
+                    else
+                    {
+                        this.Server.TcpClient.Close();
+                    }
                 }
 
                 this.OnMessageReceived = null;

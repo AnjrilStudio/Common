@@ -11,6 +11,7 @@ namespace Anjril.Common.Network.TcpImpl.Internals
         ConnectionGranted,
         ConnectionFailed,
         Message,
-        Disconnection
+        Disconnection,
+        Disconnected
     }
 }

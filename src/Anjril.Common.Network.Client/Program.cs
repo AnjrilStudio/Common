@@ -36,7 +36,7 @@ namespace Anjril.Common.Network.Client
                 Console.WriteLine("Connecting...");
                 try
                 {
-                    CLIENT.Connect("127.0.0.1", SERVER_PORT, OnMessageReceived, username);
+                    var greetings = CLIENT.Connect("127.0.0.1", SERVER_PORT, OnMessageReceived, username);
                     Console.WriteLine("Client connected on port: " + port);
                     Console.WriteLine();
 
@@ -44,6 +44,9 @@ namespace Anjril.Common.Network.Client
                     while (!quit)
                     {
                         Console.WriteLine("Press 'q' to stop the client, 'm' to type a new message...");
+                        Console.WriteLine();
+
+                        Console.WriteLine(greetings);
                         Console.WriteLine();
 
                         var key = Console.ReadKey(true);

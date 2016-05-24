@@ -50,8 +50,6 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="TcpSocketConnectionTests.cs" />
-    <Compile Include="TcpSocketClientTests.cs" />
     <Compile Include="TcpSocketClientConnectTests.cs" />
     <Compile Include="TcpRemoteConnectionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -66,6 +64,7 @@
       <Name>Anjril.Common.Network</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>
