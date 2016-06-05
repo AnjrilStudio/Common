@@ -50,7 +50,10 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="TcpSocketClientConnectTests.cs" />
+    <Compile Include="Server\TcpSocketTests.cs" />
+    <Compile Include="Server\TcpSocketConnectTests.cs" />
+    <Compile Include="Client\TcpSocketClientTests.cs" />
+    <Compile Include="Client\TcpSocketClientConnectTests.cs" />
     <Compile Include="TcpRemoteConnectionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

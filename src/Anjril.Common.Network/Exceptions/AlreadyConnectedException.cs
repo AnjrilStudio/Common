@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Anjril.Common.Network.Exceptions
+﻿namespace Anjril.Common.Network.Exceptions
 {
+    using System;
+
     public class AlreadyConnectedException : Exception
     {
         #region constructors

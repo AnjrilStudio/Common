@@ -1,13 +1,13 @@
-﻿using Anjril.Common.Network.TcpImpl.Internals;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
-
-namespace Anjril.Common.Network.TcpImpl
+﻿namespace Anjril.Common.Network.TcpImpl
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Net;
+    using System.Net.Sockets;
+    using System.Text;
+
+
     public class TcpRemoteConnection : IRemoteConnection
     {
         #region properties

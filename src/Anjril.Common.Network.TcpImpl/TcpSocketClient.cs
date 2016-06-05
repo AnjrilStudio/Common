@@ -1,16 +1,16 @@
-﻿using Anjril.Common.Network.Exceptions;
-using Anjril.Common.Network.TcpImpl.Internals;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading;
-
-namespace Anjril.Common.Network.TcpImpl
+﻿namespace Anjril.Common.Network.TcpImpl
 {
+    using Exceptions;
+    using Internals;
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Linq;
+    using System.Net;
+    using System.Net.Sockets;
+    using System.Text;
+    using System.Threading;
+
     public class TcpSocketClient : ISocketClient
     {
         #region properties
@@ -80,26 +80,27 @@ namespace Anjril.Common.Network.TcpImpl
 
             if (response == null)
             {
-                this.Disconnect(null, true);
+                this.ResetConnection();
                 throw new ConnectionFailedException();
             }
             else if (!response.IsValid)
             {
-                this.Disconnect(null, true);
+                this.ResetConnection();
                 throw new ConnectionFailedException(TypeConnectionFailed.InvalidResponse, "The response from the server was not at the expected format. Connection failed");
             }
             else if (response.Command == Command.ConnectionFailed)
             {
-                this.Disconnect(null, true);
+                this.ResetConnection();
                 throw new ConnectionFailedException(TypeConnectionFailed.ConnectionRefused, response.InnerMessage);
             }
             else if (response.Command != Command.ConnectionGranted)
             {
-                this.Disconnect(null, true);
+                this.ResetConnection();
                 throw new ConnectionFailedException(TypeConnectionFailed.Other, "An unexpected connection response has been received. Connection failed.");
             }
 
             var thread = new Thread(new ThreadStart(this.Listening));
+            thread.Name = String.Format("TcpSocketClient:{0} Listening", this.GetHashCode());
             thread.Start();
 
             this.IsConnected = true;
@@ -116,7 +117,15 @@ namespace Anjril.Common.Network.TcpImpl
         {
             var msg = new Message(Command.Message, message);
 
-            this.Server.Send(msg.ToString());
+            try
+            {
+                this.Server.Send(msg.ToString());
+            }
+            catch (SocketException e)
+            {
+                this.ResetConnection();
+                throw new ConnectionLostException(e);
+            }
         }
 
         #endregion
@@ -189,8 +198,6 @@ namespace Anjril.Common.Network.TcpImpl
         /// <param name="reuse">specify if the client is able to connect to another server</param>
         private void Disconnect(string message, bool reuse)
         {
-            var port = this.Port;
-
             this.Stop = true;
 
             Message disconnection = new Message(Command.Disconnection, message);
@@ -206,15 +213,29 @@ namespace Anjril.Common.Network.TcpImpl
                 response = this.ReceiveMessage(1000);
             }
 
-            this.Server.TcpClient.Close();
-
             if (reuse)
             {
-                var ipAddress = IPAddress.Parse("127.0.0.1");
-
-                this.Server.TcpClient.Close();
-                this.Server.TcpClient = new TcpClient(new IPEndPoint(ipAddress, port));
+                ResetConnection();
             }
+            else
+            {
+                this.Server.TcpClient.Close();
+            }
+        }
+
+        /// <summary>
+        /// Closes the connection in a way it can be used again to connect with another server
+        /// </summary>
+        private void ResetConnection()
+        {
+            this.Stop = true;
+            this.IsConnected = false;
+
+            var ipAddress = IPAddress.Parse("127.0.0.1");
+            var port = this.Port;
+
+            this.Server.TcpClient.Close();
+            this.Server.TcpClient = new TcpClient(new IPEndPoint(ipAddress, port));
         }
 
         #endregion

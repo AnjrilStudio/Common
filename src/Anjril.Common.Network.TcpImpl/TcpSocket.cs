@@ -1,30 +1,26 @@
-﻿using Anjril.Common.Network.Exceptions;
-using Anjril.Common.Network.TcpImpl.Internals;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading;
-
-namespace Anjril.Common.Network.TcpImpl
+﻿namespace Anjril.Common.Network.TcpImpl
 {
+    using Exceptions;
+    using Internals;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Net;
+    using System.Net.Sockets;
+    using System.Text;
+    using System.Threading;
+
     public class TcpSocket : ISocket
     {
         #region properties
 
         public bool IsListening { get; private set; }
         public int Port { get { return (this.Listener.Server.LocalEndPoint as IPEndPoint).Port; } }
+        public IList<IRemoteConnection> Clients { get; private set; }
 
         #endregion
 
         #region private properties
-
-        /// <summary>
-        /// The list of clients successfully connected to this socket
-        /// </summary>
-        internal IList<TcpRemoteConnection> RemoteConnections { get; private set; }
 
         /// <summary>
         /// THe internal tcp listener used to exchange package
@@ -63,7 +59,7 @@ namespace Anjril.Common.Network.TcpImpl
         public TcpSocket(int port, string separator)
         {
             this.Listener = new TcpListener(IPAddress.Any, port);
-            this.RemoteConnections = new List<TcpRemoteConnection>();
+            this.Clients = new List<IRemoteConnection>();
             this.Separator = separator;
             this.Stop = false;
         }
@@ -74,10 +70,34 @@ namespace Anjril.Common.Network.TcpImpl
 
         public void Broadcast(string message)
         {
-            foreach (var remote in this.RemoteConnections)
+            var disconnectedRemote = new List<TcpRemoteConnection>();
+
+            string msg = new Message(Command.Message, message).ToString();
+
+            foreach (var remote in this.Clients)
             {
-                Message msg = new Message(Command.Message, message);
-                remote.Send(msg.ToString());
+                try
+                {
+                    remote.Send(msg.ToString());
+                }
+                catch (SocketException e)
+                {
+                    switch (e.ErrorCode)
+                    {
+                        case 10053:
+                            // The remote connection is disconnected
+                            disconnectedRemote.Add(remote as TcpRemoteConnection);
+                            break;
+                        default:
+                            // In all the other cases, the exception is thrown
+                            throw e;
+                    }
+                }
+            }
+
+            foreach (var remote in disconnectedRemote)
+            {
+                this.RemoveClient(remote);
             }
         }
 
@@ -93,9 +113,11 @@ namespace Anjril.Common.Network.TcpImpl
             this.OnDisconnect = onDisconnect;
 
             var thread = new Thread(new ThreadStart(this.ListeningMessage));
+            thread.Name = String.Format("TcpSocket:{0} ListeningMessage", this.GetHashCode());
             thread.Start();
 
             thread = new Thread(new ThreadStart(this.ListeningConnection));
+            thread.Name = String.Format("TcpSocket:{0} ListeningConnection", this.GetHashCode());
             thread.Start();
         }
 
@@ -127,6 +149,7 @@ namespace Anjril.Common.Network.TcpImpl
                     var remote = new TcpRemoteConnection(client, this.Separator);
 
                     var thread = new Thread(new ParameterizedThreadStart(this.ValidateConnection));
+                    thread.Name = String.Format("TcpSocket:{0} ValidateConnection", this.GetHashCode());
                     thread.Start(remote);
                 }
                 catch (SocketException e)
@@ -158,21 +181,24 @@ namespace Anjril.Common.Network.TcpImpl
 
             for (int i = 0; request == null; i++)
             {
-                var requestStr = remote.Receive();
-                request = new Message(requestStr);
-
                 if (i > 10) // TODO : parameterize the timeout
                 {
-                    Message response = new Message(Command.ConnectionFailed, "The connection request takes to long to arrive.");
+                    Message response = new Message(Command.ConnectionFailed, "The connection request takes to long.");
 
                     remote.Send(response.ToString());
                     remote.TcpClient.Close();
                     return;
                 }
 
-                if (request == null)
+                var requestStr = remote.Receive();
+
+                if (requestStr == null)
                 {
                     Thread.Sleep(100);
+                }
+                else
+                {
+                    request = new Message(requestStr);
                 }
             }
 
@@ -189,7 +215,7 @@ namespace Anjril.Common.Network.TcpImpl
 
                 if (success)
                 {
-                    this.RemoteConnections.Add(remote);
+                    this.Clients.Add(remote);
                 }
                 else
                 {
@@ -212,37 +238,31 @@ namespace Anjril.Common.Network.TcpImpl
         {
             while (!this.Stop)
             {
-                var disconnectedRemote = new LinkedList<TcpRemoteConnection>();
+                var disconnectedRemote = new List<TcpRemoteConnection>();
 
-                foreach (var remote in this.RemoteConnections)
+                foreach (var remote in this.Clients.Cast<TcpRemoteConnection>())
                 {
-                    if (remote.TcpClient.Connected)
+                    for (var messageStr = remote.Receive(); !String.IsNullOrEmpty(messageStr); messageStr = remote.Receive())
                     {
-                        for (var messageStr = remote.Receive(); !String.IsNullOrEmpty(messageStr); messageStr = remote.Receive())
+                        var message = new Message(messageStr);
+
+                        if (message.IsValid && message.Command == Command.Message)
                         {
-                            var message = new Message(messageStr);
-
-                            if (message.IsValid && message.Command == Command.Message && this.OnMessageReceived != null)
-                            {
-                                this.OnMessageReceived(remote, message.InnerMessage);
-                            }
-                            else if (message.IsValid && message.Command == Command.Disconnection && this.OnDisconnect != null)
-                            {
-                                disconnectedRemote.AddLast(remote);
-
-                                this.OnDisconnect(remote, message.InnerMessage);
-                            }
+                            this.OnMessageReceived?.Invoke(remote, message.InnerMessage);
                         }
-                    }
-                    else
-                    {
-                        disconnectedRemote.AddLast(remote);
+                        else if (message.IsValid && message.Command == Command.Disconnection)
+                        {
+                            disconnectedRemote.Add(remote);
+
+                            this.OnDisconnect?.Invoke(remote, message.InnerMessage);
+                        }
                     }
                 }
 
                 foreach (var remote in disconnectedRemote)
                 {
-                    this.RemoteConnections.Remove(remote);
+                    remote.Send(new Message(Command.Disconnected, null).ToString());
+                    this.RemoveClient(remote);
                 }
 
                 Thread.Sleep(100); // TODO : parameterize tick
@@ -252,16 +272,26 @@ namespace Anjril.Common.Network.TcpImpl
         }
 
         /// <summary>
+        /// Removes the specified client from the list of <see cref="Clients"/>. Also disposes the underlying TcpClient instance.
+        /// </summary>
+        /// <param name="client">The client to remove</param>
+        private void RemoveClient(TcpRemoteConnection client)
+        {
+            this.Clients.Remove(client);
+            client.TcpClient.Close();
+        }
+
+        /// <summary>
         /// Close all the remote connected and clear the list
         /// </summary>
         private void ResetConnections()
         {
-            foreach (var remote in this.RemoteConnections)
+            foreach (var remote in this.Clients.Cast<TcpRemoteConnection>())
             {
                 remote.TcpClient.Close();
             }
 
-            this.RemoteConnections = new List<TcpRemoteConnection>();
+            this.Clients = new List<IRemoteConnection>();
         }
 
         #endregion

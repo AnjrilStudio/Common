@@ -43,6 +43,7 @@
         /// <param name="message">the message to send</param>
         /// <param name="destination">the message destination</param>
         /// <exception cref="Exceptions.NotConnectedException">When the SocketClient is not connected</exception>
+        /// <exception cref="Exceptions.ConnectionLostException">When the Server is no longer available</exception>
         void Send(string message);
 
         #endregion

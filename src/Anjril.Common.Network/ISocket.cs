@@ -1,6 +1,7 @@
 ﻿namespace Anjril.Common.Network
 {
     using System;
+    using System.Collections.Generic;
 
     public interface ISocket : IDisposable
     {
@@ -15,6 +16,11 @@
         /// Gets a value that indicates whether the socket is listening
         /// </summary>
         bool IsListening { get; }
+
+        /// <summary>
+        /// Gets a list that indicates all the client connected to the server
+        /// </summary>
+        IList<IRemoteConnection> Clients { get; }
 
         #endregion
 

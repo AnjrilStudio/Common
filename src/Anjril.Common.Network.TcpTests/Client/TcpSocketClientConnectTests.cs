@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Anjril.Common.Network.TcpImpl.Internals;
 using System.Diagnostics;
 
-namespace Anjril.Common.Network.TcpTests
+namespace Anjril.Common.Network.TcpTests.Client
 {
     [TestClass]
     public class TcpSocketClientConnectTests
@@ -113,18 +113,9 @@ namespace Anjril.Common.Network.TcpTests
             Assert.AreEqual(request, messageRequest.InnerMessage);
 
             this.Tester.Send(new Message(Command.ConnectionFailed, response).ToString());
+            this.Tester.TcpClient.Dispose();
 
             Thread.Sleep(200);
-
-            var disconnectionRequest = this.ReceiveMessage();
-
-            Assert.IsNotNull(disconnectionRequest);
-            Assert.IsTrue(disconnectionRequest.IsValid);
-            Assert.AreEqual(Command.Disconnection, disconnectionRequest.Command);
-
-            this.Tester.Send(new Message(Command.Disconnected, null).ToString());
-
-            this.Tester.TcpClient.Dispose();
 
             try
             {
@@ -165,14 +156,6 @@ namespace Anjril.Common.Network.TcpTests
             Assert.IsTrue(messageRequest.IsValid);
             Assert.AreEqual(Command.ConnectionRequest, messageRequest.Command);
             Assert.AreEqual(request, messageRequest.InnerMessage);
-
-            var disconnectionRequest = this.ReceiveMessage();
-
-            Assert.IsNotNull(disconnectionRequest);
-            Assert.IsTrue(disconnectionRequest.IsValid);
-            Assert.AreEqual(Command.Disconnection, disconnectionRequest.Command);
-
-            this.Tester.Send(new Message(Command.Disconnected, null).ToString());
 
             this.Tester.TcpClient.Dispose();
 
@@ -216,18 +199,9 @@ namespace Anjril.Common.Network.TcpTests
             Assert.AreEqual(request, messageRequest.InnerMessage);
 
             this.Tester.Send(new Message(Command.Message, null).ToString());
+            this.Tester.TcpClient.Dispose();
 
             Thread.Sleep(200);
-
-            var disconnectionRequest = this.ReceiveMessage();
-
-            Assert.IsNotNull(disconnectionRequest);
-            Assert.IsTrue(disconnectionRequest.IsValid);
-            Assert.AreEqual(Command.Disconnection, disconnectionRequest.Command);
-
-            this.Tester.Send(new Message(Command.Disconnected, null).ToString());
-
-            this.Tester.TcpClient.Dispose();
 
             try
             {
@@ -269,17 +243,6 @@ namespace Anjril.Common.Network.TcpTests
             Assert.AreEqual(request, messageRequest.InnerMessage);
 
             this.Tester.Send("This is an unvalid reponse");
-
-            Thread.Sleep(200);
-
-            var disconnectionRequest = this.ReceiveMessage();
-
-            Assert.IsNotNull(disconnectionRequest);
-            Assert.IsTrue(disconnectionRequest.IsValid);
-            Assert.AreEqual(Command.Disconnection, disconnectionRequest.Command);
-
-            this.Tester.Send(new Message(Command.Disconnected, null).ToString());
-
             this.Tester.TcpClient.Dispose();
 
             try
