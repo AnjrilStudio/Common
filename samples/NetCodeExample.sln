@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anjril.Common.Network.ExampleServer", "Anjril.Common.Network.ExampleServer\Anjril.Common.Network.ExampleServer.csproj", "{6CDA792B-B5E2-4C96-9AE8-A5FEE09E85BF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anjril.Common.Network.Sample.Server", "Anjril.Common.Network.Sample.Server\Anjril.Common.Network.Sample.Server.csproj", "{E9330C32-3471-4830-B314-AB53D79B7A57}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anjril.Common.Network.ExampleClient", "Anjril.Common.Network.ExampleClient\Anjril.Common.Network.ExampleClient.csproj", "{5F6F9A1F-41DA-437C-AB18-E05960D8E384}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anjril.Common.Network.Sample.Client", "Anjril.Common.Network.Sample.Client\Anjril.Common.Network.Sample.Client.csproj", "{D1774AF0-D911-43B6-B256-1EAA19503535}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -14,18 +14,18 @@ Global
 		WAN|Any CPU = WAN|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{6CDA792B-B5E2-4C96-9AE8-A5FEE09E85BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6CDA792B-B5E2-4C96-9AE8-A5FEE09E85BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6CDA792B-B5E2-4C96-9AE8-A5FEE09E85BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6CDA792B-B5E2-4C96-9AE8-A5FEE09E85BF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6CDA792B-B5E2-4C96-9AE8-A5FEE09E85BF}.WAN|Any CPU.ActiveCfg = WAN|Any CPU
-		{6CDA792B-B5E2-4C96-9AE8-A5FEE09E85BF}.WAN|Any CPU.Build.0 = WAN|Any CPU
-		{5F6F9A1F-41DA-437C-AB18-E05960D8E384}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5F6F9A1F-41DA-437C-AB18-E05960D8E384}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5F6F9A1F-41DA-437C-AB18-E05960D8E384}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5F6F9A1F-41DA-437C-AB18-E05960D8E384}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5F6F9A1F-41DA-437C-AB18-E05960D8E384}.WAN|Any CPU.ActiveCfg = WAN|Any CPU
-		{5F6F9A1F-41DA-437C-AB18-E05960D8E384}.WAN|Any CPU.Build.0 = WAN|Any CPU
+		{E9330C32-3471-4830-B314-AB53D79B7A57}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9330C32-3471-4830-B314-AB53D79B7A57}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9330C32-3471-4830-B314-AB53D79B7A57}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9330C32-3471-4830-B314-AB53D79B7A57}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9330C32-3471-4830-B314-AB53D79B7A57}.WAN|Any CPU.ActiveCfg = Release|Any CPU
+		{E9330C32-3471-4830-B314-AB53D79B7A57}.WAN|Any CPU.Build.0 = Release|Any CPU
+		{D1774AF0-D911-43B6-B256-1EAA19503535}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1774AF0-D911-43B6-B256-1EAA19503535}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1774AF0-D911-43B6-B256-1EAA19503535}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1774AF0-D911-43B6-B256-1EAA19503535}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1774AF0-D911-43B6-B256-1EAA19503535}.WAN|Any CPU.ActiveCfg = Release|Any CPU
+		{D1774AF0-D911-43B6-B256-1EAA19503535}.WAN|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

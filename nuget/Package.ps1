@@ -1,4 +1,4 @@
-$msbuild = "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe"
+$msbuild = "C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe"
 $nuget = ".\nuget.exe"
 
 $target = "packages"
@@ -32,7 +32,8 @@ if(Test-Path -Path $target)
 # 2. Package
 
 Package "..\src\Anjril.Common.Network\Anjril.Common.Network.csproj"
-Package "..\src\Anjril.Common.Network.UdpImpl\Anjril.Common.Network.UdpImpl.csproj"
+#Package "..\src\Anjril.Common.Network.UdpImpl\Anjril.Common.Network.UdpImpl.csproj"
+Package "..\src\Anjril.Common.Network.TcpImpl\Anjril.Common.Network.TcpImpl.csproj"
 
 # 3. Move package
 

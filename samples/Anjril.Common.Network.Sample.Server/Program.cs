@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Anjril.Common.Network.Sample
+namespace Anjril.Common.Network.Sample.Server
 {
     class Program
     {

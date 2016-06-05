@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Anjril.Common.Network.Client
+namespace Anjril.Common.Network.Sample.Client
 {
     class Program
     {
@@ -40,13 +40,13 @@ namespace Anjril.Common.Network.Client
                     Console.WriteLine("Client connected on port: " + port);
                     Console.WriteLine();
 
+                    Console.WriteLine(greetings);
+                    Console.WriteLine();
+
                     bool quit = false;
                     while (!quit)
                     {
                         Console.WriteLine("Press 'q' to stop the client, 'm' to type a new message...");
-                        Console.WriteLine();
-
-                        Console.WriteLine(greetings);
                         Console.WriteLine();
 
                         var key = Console.ReadKey(true);

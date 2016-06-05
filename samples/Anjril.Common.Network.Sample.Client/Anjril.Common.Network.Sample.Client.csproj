@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{6CDA792B-B5E2-4C96-9AE8-A5FEE09E85BF}</ProjectGuid>
+    <ProjectGuid>{D1774AF0-D911-43B6-B256-1EAA19503535}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Anjril.Common.Network.ExampleServer</RootNamespace>
-    <AssemblyName>Anjril.Common.Network.ExampleServer</AssemblyName>
+    <RootNamespace>Anjril.Common.Network.Sample.Client</RootNamespace>
+    <AssemblyName>Anjril.Common.Network.Sample.Client</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -32,19 +32,13 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'WAN|AnyCPU'">
-    <OutputPath>bin\WAN\</OutputPath>
-    <ErrorReport>prompt</ErrorReport>
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Anjril.Common.Network, Version=0.0.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Anjril.Common.Network.0.0.2.0\lib\net35\Anjril.Common.Network.dll</HintPath>
+    <Reference Include="Anjril.Common.Network, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Anjril.Common.Network.1.0.0-rc1\lib\net35\Anjril.Common.Network.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Anjril.Common.Network.UdpImpl, Version=0.0.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Anjril.Common.Network.UdpImpl.0.0.2.0\lib\net35\Anjril.Common.Network.UdpImpl.dll</HintPath>
+    <Reference Include="Anjril.Common.Network.TcpImpl, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Anjril.Common.Network.TcpImpl.1.0.0-rc1\lib\net35\Anjril.Common.Network.TcpImpl.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />

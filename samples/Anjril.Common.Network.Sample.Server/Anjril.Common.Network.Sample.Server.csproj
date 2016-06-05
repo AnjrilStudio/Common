@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{D1774AF0-D911-43B6-B256-1EAA19503535}</ProjectGuid>
+    <ProjectGuid>{E9330C32-3471-4830-B314-AB53D79B7A57}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Anjril.Common.Network.Client</RootNamespace>
-    <AssemblyName>Anjril.Common.Network.Client</AssemblyName>
+    <RootNamespace>Anjril.Common.Network.Sample.Server</RootNamespace>
+    <AssemblyName>Anjril.Common.Network.Sample.Server</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -33,6 +33,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Anjril.Common.Network, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Anjril.Common.Network.1.0.0-rc1\lib\net35\Anjril.Common.Network.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Anjril.Common.Network.TcpImpl, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Anjril.Common.Network.TcpImpl.1.0.0-rc1\lib\net35\Anjril.Common.Network.TcpImpl.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -48,16 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Anjril.Common.Network.TcpImpl\Anjril.Common.Network.TcpImpl.csproj">
-      <Project>{79568bb3-cb26-4d3a-8850-2d97a96377ba}</Project>
-      <Name>Anjril.Common.Network.TcpImpl</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Anjril.Common.Network\Anjril.Common.Network.csproj">
-      <Project>{0ba3ee8c-e4a2-41bf-ac12-444539c02edd}</Project>
-      <Name>Anjril.Common.Network</Name>
-    </ProjectReference>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
