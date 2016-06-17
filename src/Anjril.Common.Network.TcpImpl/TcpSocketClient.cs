@@ -74,7 +74,7 @@
 
             var msg = new Message(Command.ConnectionRequest, message);
 
-            this.Server.Send(msg.ToString());
+            this.Server.Send(msg);
 
             Message response = this.ReceiveMessage(1000); // TODO : parameterize timeout
 
@@ -119,7 +119,7 @@
 
             try
             {
-                this.Server.Send(msg.ToString());
+                this.Server.Send(msg);
             }
             catch (SocketException e)
             {
@@ -202,7 +202,7 @@
 
             Message disconnection = new Message(Command.Disconnection, message);
 
-            this.Server.Send(disconnection.ToString());
+            this.Server.Send(disconnection);
 
             // TODO : parameterize timeout
             var response = this.ReceiveMessage(1000);

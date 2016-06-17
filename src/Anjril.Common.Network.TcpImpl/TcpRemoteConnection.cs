@@ -1,5 +1,6 @@
 ﻿namespace Anjril.Common.Network.TcpImpl
 {
+    using Internals;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -56,10 +57,8 @@
 
         public void Send(string message)
         {
-            message += this.Separator;
-
-            var datagram = this.SerializeMessage(message);
-            this.TcpClient.Client.Send(datagram);
+            var msg = new Message(Command.Message, message);
+            this.Send(msg);
         }
 
         /// <summary>
@@ -90,6 +89,12 @@
             }
 
             return message;
+        }
+
+        internal void Send(Message message)
+        {
+            var datagram = this.SerializeMessage(message.ToString() + this.Separator);
+            this.TcpClient.Client.Send(datagram);
         }
 
         #endregion

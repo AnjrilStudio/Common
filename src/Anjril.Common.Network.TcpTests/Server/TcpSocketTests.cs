@@ -43,11 +43,11 @@ namespace Anjril.Common.Network.TcpTests
             var connectionRequest = new Message(Command.ConnectionRequest, "Connection");
 
             this.Tester1.TcpClient.Connect(IPAddress.Parse(LOCALHOST), SERVER_PORT);
-            this.Tester1.Send(connectionRequest.ToString());
+            this.Tester1.Send(connectionRequest);
             this.ReceiveMessage(this.Tester1);
 
             this.Tester2.TcpClient.Connect(IPAddress.Parse(LOCALHOST), SERVER_PORT);
-            this.Tester2.Send(connectionRequest.ToString());
+            this.Tester2.Send(connectionRequest);
             this.ReceiveMessage(this.Tester2);
         }
 

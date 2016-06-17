@@ -81,7 +81,7 @@ namespace Anjril.Common.Network.TcpTests
 
             this.Tester.TcpClient.Connect(IPAddress.Parse(LOCALHOST), SERVER_PORT);
 
-            this.Tester.Send(connectionRequest.ToString());
+            this.Tester.Send(connectionRequest);
 
             var connectionResponse = this.ReceiveMessage();
 
@@ -91,7 +91,7 @@ namespace Anjril.Common.Network.TcpTests
 
             Assert.AreEqual(1, this.Tested.Clients.Count);
 
-            this.Tester.Send(disconnectionRequest.ToString());
+            this.Tester.Send(disconnectionRequest);
 
             var disconnectionResponse = this.ReceiveMessage();
 
@@ -150,7 +150,7 @@ namespace Anjril.Common.Network.TcpTests
 
             this.Tester.TcpClient.Connect(IPAddress.Parse(LOCALHOST), SERVER_PORT);
 
-            this.Tester.Send(connectionRequest.ToString());
+            this.Tester.Send(connectionRequest);
 
             Thread.Sleep(500);
 
@@ -181,7 +181,7 @@ namespace Anjril.Common.Network.TcpTests
 
             this.Tester.TcpClient.Connect(IPAddress.Parse(LOCALHOST), SERVER_PORT);
 
-            this.Tester.Send(connectionRequest.ToString());
+            this.Tester.Send(connectionRequest);
 
             Thread.Sleep(500);
 

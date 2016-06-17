@@ -72,13 +72,11 @@
         {
             var disconnectedRemote = new List<TcpRemoteConnection>();
 
-            string msg = new Message(Command.Message, message).ToString();
-
             foreach (var remote in this.Clients)
             {
                 try
                 {
-                    remote.Send(msg.ToString());
+                    remote.Send(message);
                 }
                 catch (SocketException e)
                 {
@@ -185,7 +183,7 @@
                 {
                     Message response = new Message(Command.ConnectionFailed, "The connection request takes to long.");
 
-                    remote.Send(response.ToString());
+                    remote.Send(response);
                     remote.TcpClient.Close();
                     return;
                 }
@@ -211,7 +209,7 @@
 
                 Message response = new Message(success ? Command.ConnectionGranted : Command.ConnectionFailed, responseStr);
 
-                remote.Send(response.ToString());
+                remote.Send(response);
 
                 if (success)
                 {
@@ -226,7 +224,7 @@
             {
                 Message response = new Message(Command.ConnectionFailed, "The connection request is not in the valid format or with the expected command.");
 
-                remote.Send(response.ToString());
+                remote.Send(response);
                 remote.TcpClient.Close();
             }
         }
@@ -261,7 +259,7 @@
 
                 foreach (var remote in disconnectedRemote)
                 {
-                    remote.Send(new Message(Command.Disconnected, null).ToString());
+                    remote.Send(new Message(Command.Disconnected, null));
                     this.RemoveClient(remote);
                 }
 

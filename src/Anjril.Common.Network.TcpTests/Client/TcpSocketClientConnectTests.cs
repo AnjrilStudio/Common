@@ -78,7 +78,7 @@ namespace Anjril.Common.Network.TcpTests.Client
             Assert.AreEqual(Command.ConnectionRequest, messageRequest.Command);
             Assert.AreEqual(request, messageRequest.InnerMessage);
 
-            this.Tester.Send(new Message(Command.ConnectionGranted, response).ToString());
+            this.Tester.Send(new Message(Command.ConnectionGranted, response));
 
             // wait until the tested receive the connection response
             connectionResponse.Wait();
@@ -112,7 +112,7 @@ namespace Anjril.Common.Network.TcpTests.Client
             Assert.AreEqual(Command.ConnectionRequest, messageRequest.Command);
             Assert.AreEqual(request, messageRequest.InnerMessage);
 
-            this.Tester.Send(new Message(Command.ConnectionFailed, response).ToString());
+            this.Tester.Send(new Message(Command.ConnectionFailed, response));
             this.Tester.TcpClient.Dispose();
 
             Thread.Sleep(200);
@@ -198,7 +198,7 @@ namespace Anjril.Common.Network.TcpTests.Client
             Assert.AreEqual(Command.ConnectionRequest, messageRequest.Command);
             Assert.AreEqual(request, messageRequest.InnerMessage);
 
-            this.Tester.Send(new Message(Command.Message, null).ToString());
+            this.Tester.Send(new Message(Command.Message, null));
             this.Tester.TcpClient.Dispose();
 
             Thread.Sleep(200);
@@ -242,7 +242,7 @@ namespace Anjril.Common.Network.TcpTests.Client
             Assert.AreEqual(Command.ConnectionRequest, messageRequest.Command);
             Assert.AreEqual(request, messageRequest.InnerMessage);
 
-            this.Tester.Send("This is an unvalid reponse");
+            this.Tester.TcpClient.Client.Send(Encoding.ASCII.GetBytes("This is an unvalid reponse" + SEPARATOR));
             this.Tester.TcpClient.Dispose();
 
             try

@@ -5,6 +5,7 @@ using System.Net;
 using Anjril.Common.Network.TcpImpl;
 using System.Threading;
 using System.Text;
+using Anjril.Common.Network.TcpImpl.Internals;
 
 namespace Anjril.Common.Network.TcpTests
 {
@@ -54,7 +55,7 @@ namespace Anjril.Common.Network.TcpTests
 
             var messageReceived = Encoding.ASCII.GetString(buffer);
 
-            Assert.AreEqual(message + this.Separator, messageReceived);
+            Assert.AreEqual(Command.Message + "|" + message + this.Separator, messageReceived);
         }
 
         [TestMethod]

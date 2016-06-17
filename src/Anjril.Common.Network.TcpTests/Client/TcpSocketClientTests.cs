@@ -52,7 +52,7 @@ namespace Anjril.Common.Network.TcpTests.Client
 
             var messageRequest = this.ReceiveMessage();
 
-            this.Tester.Send(new Message(Command.ConnectionGranted, null).ToString());
+            this.Tester.Send(new Message(Command.ConnectionGranted, null));
 
             // wait until the tested receive the connection response
             connectionResponse.Wait();
@@ -137,7 +137,7 @@ namespace Anjril.Common.Network.TcpTests.Client
 
             for (int i = 0; i < 10; i++)
             {
-                this.Tester.Send(new Message(Command.Message, message + i).ToString());
+                this.Tester.Send(new Message(Command.Message, message + i));
             }
 
             // Wait until all the messages have been received
@@ -166,7 +166,7 @@ namespace Anjril.Common.Network.TcpTests.Client
             Assert.AreEqual(message, disconnectionRequest.InnerMessage);
 
             var disconnectionReponse = new Message(Command.Disconnected, null);
-            this.Tester.Send(disconnectionReponse.ToString());
+            this.Tester.Send(disconnectionReponse);
 
             this.Tester.TcpClient.Dispose();
 

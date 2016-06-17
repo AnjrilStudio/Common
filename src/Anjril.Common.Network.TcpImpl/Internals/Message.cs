@@ -18,7 +18,7 @@
         {
             var split = message.Split('|');
 
-            this.IsValid = split.Length == 2;
+            this.IsValid = split.Length >= 2;
 
             if (this.IsValid)
             {
