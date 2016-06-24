@@ -46,6 +46,13 @@
         /// <param name="message">The message to broadcast</param>
         void Broadcast(string message);
 
+        /// <summary>
+        /// Closes the connection with the specified client
+        /// </summary>
+        /// <param name="client">the client to disconnect with</param>
+        /// <param name="justification">the justfication of the disconnection</param>
+        void CloseConnection(IRemoteConnection client, string justification);
+
         #endregion
     }
 }

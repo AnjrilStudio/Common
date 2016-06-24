@@ -194,6 +194,18 @@ namespace Anjril.Common.Network.TcpTests.Client
             Assert.IsFalse(this.Tested.IsConnected);
         }
 
+        [TestMethod]
+        public void TestDisconnectForced()
+        {
+            var justification = "Because";
+
+            this.Tester.Send(new Message(Command.Disconnected, justification));
+
+            Thread.Sleep(200);
+
+            Assert.IsFalse(this.Tested.IsConnected);
+        }
+
         [TestCleanup]
         public void MyTestCleanup()
         {

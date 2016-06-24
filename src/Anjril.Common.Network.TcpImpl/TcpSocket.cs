@@ -126,6 +126,17 @@
             this.ResetConnections();
         }
 
+        public void CloseConnection(IRemoteConnection client, string justification)
+        {
+            if (this.Clients.Contains(client)) { }
+            var tcpRemote = (client as TcpRemoteConnection);
+
+            tcpRemote.Send(new Message(Command.Disconnected, justification));
+            tcpRemote.TcpClient.Close();
+
+            this.Clients.Remove(client);
+        }
+
         #endregion
 
         #region private methods

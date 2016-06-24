@@ -185,6 +185,11 @@
                     {
                         this.OnMessageReceived(this.Server, message.InnerMessage);
                     }
+                    else if (message.IsValid && message.Command == Command.Disconnected)
+                    {
+                        this.ResetConnection();
+                        throw new ConnectionLostException(message.InnerMessage);
+                    }
                 }
             }
 

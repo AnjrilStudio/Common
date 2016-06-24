@@ -5,6 +5,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Net;
+    using System.Net.NetworkInformation;
     using System.Net.Sockets;
     using System.Text;
 
@@ -15,6 +16,13 @@
 
         public string IPAddress { get { return (this.TcpClient.Client.RemoteEndPoint as IPEndPoint).Address.ToString(); } }
         public int Port { get { return (this.TcpClient.Client.RemoteEndPoint as IPEndPoint).Port; } }
+        public long Ping
+        {
+            get
+            {
+                return this.PingUtil.Send((this.TcpClient.Client.RemoteEndPoint as IPEndPoint).Address).RoundtripTime;
+            }
+        }
 
         /// <summary>
         /// The tcp client used to send and receive message
@@ -35,6 +43,11 @@
         /// </summary>
         private string Separator { get; set; }
 
+        /// <summary>
+        /// The ping instance used to get the ping between two remote connection
+        /// </summary>
+        private Ping PingUtil { get; set; }
+
         #endregion
 
         #region constructors
@@ -49,6 +62,8 @@
             this.TcpClient = client;
             this.Buffer = String.Empty;
             this.Separator = separator;
+
+            this.PingUtil = new Ping();
         }
 
         #endregion
@@ -91,6 +106,10 @@
             return message;
         }
 
+        /// <summary>
+        /// Sends the specified message to the remote connection
+        /// </summary>
+        /// <param name="message"></param>
         internal void Send(Message message)
         {
             var datagram = this.SerializeMessage(message.ToString() + this.Separator);

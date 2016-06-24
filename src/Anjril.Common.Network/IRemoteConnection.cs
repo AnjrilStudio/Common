@@ -14,6 +14,11 @@
         /// </summary>
         int Port { get; }
 
+        /// <summary>
+        /// The ping between this instance and the remote connection
+        /// </summary>
+        long Ping { get; }
+
         #endregion
 
         #region methods
