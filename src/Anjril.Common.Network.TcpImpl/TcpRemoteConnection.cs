@@ -1,5 +1,6 @@
 ﻿namespace Anjril.Common.Network.TcpImpl
 {
+    using global::Common.Logging;
     using Internals;
     using System;
     using System.Collections.Generic;
@@ -12,6 +13,8 @@
 
     public class TcpRemoteConnection : IRemoteConnection
     {
+        private static ILog log = LogManager.GetLogger(typeof(TcpRemoteConnection));
+
         #region properties
 
         public string IPAddress { get { return (this.TcpClient.Client.RemoteEndPoint as IPEndPoint).Address.ToString(); } }
@@ -80,26 +83,33 @@
         /// Looks into the socket for a complete message and returns it. null if the message is incomplete.
         /// </summary>
         /// <returns>The received message. Null if not complete</returns>
-        internal string Receive()
+        internal Message Receive()
         {
             // Retrieving latest bytes
             if (this.TcpClient.Available > 0)
             {
                 byte[] bytes = new byte[this.TcpClient.Available];
 
-                this.TcpClient.GetStream().Read(bytes, 0, this.TcpClient.Available);
+                this.TcpClient.GetStream().Read(bytes, 0, bytes.Length);
 
-                this.Buffer += this.DeserializeDatagram(bytes);
+                string addition = this.DeserializeDatagram(bytes);
+
+                log.TraceFormat("Addition of '{0}' to the buffer.", addition);
+
+                this.Buffer += addition;
             }
 
-            string message = null;
+            Message message = null;
 
             // Extracting next message
             if (this.Buffer.Contains(this.Separator))
             {
                 var splitedMessages = this.Buffer.Split(new string[] { this.Separator }, StringSplitOptions.None);
 
-                message = splitedMessages[0];
+                log.TraceFormat("Delivery of a new message : '{0}'", splitedMessages[0]);
+
+                message = new Message(splitedMessages[0]);
+
                 this.Buffer = String.Join(this.Separator, splitedMessages.Skip(1).ToArray());
             }
 
@@ -112,6 +122,8 @@
         /// <param name="message"></param>
         internal void Send(Message message)
         {
+            log.DebugFormat("New message ({0}) sent to the remote connection: {1}:{2}", message, this.IPAddress, this.Port);
+
             var datagram = this.SerializeMessage(message.ToString() + this.Separator);
             this.TcpClient.Client.Send(datagram);
         }

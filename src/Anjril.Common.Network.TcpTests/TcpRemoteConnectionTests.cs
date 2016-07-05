@@ -63,11 +63,11 @@ namespace Anjril.Common.Network.TcpTests
         {
             var messageReceived = this.Tested.Receive();
 
-            Assert.IsTrue(String.IsNullOrEmpty(messageReceived));
+            Assert.IsNull(messageReceived);
 
-            var message = "This is a test";
+            var message = new Message(Command.Message, "This is a test");
 
-            byte[] buffer = Encoding.ASCII.GetBytes(message + this.Separator);
+            byte[] buffer = Encoding.ASCII.GetBytes(message.ToString() + this.Separator);
             this.Tester.Client.Send(buffer);
 
             // Wait 0.2s to ensure the message is fully delivered
@@ -75,13 +75,16 @@ namespace Anjril.Common.Network.TcpTests
 
             messageReceived = this.Tested.Receive();
 
-            Assert.AreEqual(message, messageReceived);
+            AreMessageEquals(messageReceived, message);
 
             messageReceived = this.Tested.Receive();
 
-            Assert.IsTrue(String.IsNullOrEmpty(messageReceived));
+            Assert.IsNull(messageReceived);
 
-            buffer = Encoding.ASCII.GetBytes(message + 1 + this.Separator + message + 2 + this.Separator + message);
+            message = new Message(Command.Message, message.InnerMessage + 1);
+            Message message2 = new Message(Command.Message, message.InnerMessage + 2);
+
+            buffer = Encoding.ASCII.GetBytes(message.ToString() + this.Separator + message2.ToString() + this.Separator + message.ToString());
             this.Tester.Client.Send(buffer);
 
             // Wait 0.2s to ensure the message is fully delivered
@@ -89,15 +92,15 @@ namespace Anjril.Common.Network.TcpTests
 
             messageReceived = this.Tested.Receive();
 
-            Assert.AreEqual(message + 1, messageReceived);
+            AreMessageEquals(messageReceived, message);
 
             messageReceived = this.Tested.Receive();
 
-            Assert.AreEqual(message + 2, messageReceived);
+            AreMessageEquals(messageReceived, message2);
 
             messageReceived = this.Tested.Receive();
 
-            Assert.IsTrue(String.IsNullOrEmpty(messageReceived));
+            Assert.IsNull(messageReceived);
 
             buffer = Encoding.ASCII.GetBytes(this.Separator);
             this.Tester.Client.Send(buffer);
@@ -107,11 +110,18 @@ namespace Anjril.Common.Network.TcpTests
 
             messageReceived = this.Tested.Receive();
 
-            Assert.AreEqual(message, messageReceived);
+            AreMessageEquals(messageReceived, message);
 
             messageReceived = this.Tested.Receive();
 
-            Assert.IsTrue(String.IsNullOrEmpty(messageReceived));
+            Assert.IsNull(messageReceived);
+        }
+
+        private static void AreMessageEquals(Message messageReceived, Message message)
+        {
+            Assert.IsTrue(messageReceived.IsValid);
+            Assert.AreEqual(message.Command, messageReceived.Command);
+            Assert.AreEqual(message.InnerMessage, messageReceived.InnerMessage);
         }
 
         [TestMethod]

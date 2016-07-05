@@ -60,10 +60,10 @@ namespace Anjril.Common.Network.TcpTests
 
         private Message ReceiveMessage(TcpRemoteConnection tester)
         {
-            string message = null;
+            Message message = null;
             var chrono = Stopwatch.StartNew();
 
-            while (String.IsNullOrWhiteSpace(message))
+            while (message == null)
             {
                 message = tester.Receive();
 
@@ -75,7 +75,7 @@ namespace Anjril.Common.Network.TcpTests
             }
 
             chrono.Stop();
-            return new Message(message);
+            return message;
         }
 
         [TestMethod]

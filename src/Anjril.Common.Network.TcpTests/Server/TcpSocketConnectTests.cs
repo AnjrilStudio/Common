@@ -34,10 +34,10 @@ namespace Anjril.Common.Network.TcpTests
 
         private Message ReceiveMessage()
         {
-            string message = null;
+            Message message = null;
             var chrono = Stopwatch.StartNew();
 
-            while (String.IsNullOrWhiteSpace(message))
+            while (message == null)
             {
                 message = this.Tester.Receive();
 
@@ -49,7 +49,7 @@ namespace Anjril.Common.Network.TcpTests
             }
 
             chrono.Stop();
-            return new Message(message);
+            return message;
         }
 
         [TestMethod]

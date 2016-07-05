@@ -1,6 +1,7 @@
 ﻿namespace Anjril.Common.Network.TcpImpl
 {
     using Exceptions;
+    using global::Common.Logging;
     using Internals;
     using System;
     using System.Collections.Generic;
@@ -13,6 +14,8 @@
 
     public class TcpSocketClient : ISocketClient
     {
+        private static ILog log = LogManager.GetLogger(typeof(TcpSocketClient));
+
         #region properties
 
         public bool IsConnected { get; private set; }
@@ -55,6 +58,8 @@
 
         public string Connect(string ipAddress, int port, MessageHandler onMessageReceived, string message)
         {
+            log.InfoFormat("Connection to {0}:{1} remote connection", ipAddress, port);
+
             if (this.IsConnected)
             {
                 throw new AlreadyConnectedException();
@@ -120,6 +125,8 @@
             try
             {
                 this.Server.Send(msg);
+
+                log.DebugFormat("Message sent: {0}", msg);
             }
             catch (SocketException e)
             {
@@ -143,9 +150,9 @@
 
             while (true)
             {
-                var responseStr = this.Server.Receive();
+                var response = this.Server.Receive();
 
-                if (String.IsNullOrEmpty(responseStr))
+                if (response == null)
                 {
                     if (timer.ElapsedMilliseconds > timeout)
                     {
@@ -157,7 +164,7 @@
                 }
                 else
                 {
-                    return new Message(responseStr);
+                    return response;
                 }
             }
         }
@@ -167,33 +174,44 @@
         /// </summary>
         private void Listening()
         {
-            this.Stop = false;
-
-            while (!this.Stop)
+            try
             {
-                string messageStr = this.Server.Receive();
+                this.Stop = false;
 
-                if (String.IsNullOrEmpty(messageStr))
-                {
-                    Thread.Sleep(100); // TODO : parameterize the tick
-                }
-                else
-                {
-                    var message = new Message(messageStr);
+                log.Debug("The client starts listening for new message");
 
-                    if (message.IsValid && message.Command == Command.Message && this.OnMessageReceived != null)
+                while (!this.Stop)
+                {
+                    var message = this.Server.Receive();
+
+                    if (message == null)
                     {
-                        this.OnMessageReceived(this.Server, message.InnerMessage);
+                        Thread.Sleep(100); // TODO : parameterize the tick
                     }
-                    else if (message.IsValid && message.Command == Command.Disconnected)
+                    else
                     {
-                        this.ResetConnection();
-                        throw new ConnectionLostException(message.InnerMessage);
+                        if (message.IsValid && message.Command == Command.Message && this.OnMessageReceived != null)
+                        {
+                            this.OnMessageReceived(this.Server, message.InnerMessage);
+                        }
+                        else if (message.IsValid && message.Command == Command.Disconnected)
+                        {
+                            this.ResetConnection();
+                            throw new ConnectionLostException(message.InnerMessage);
+                        }
                     }
                 }
             }
+            catch (Exception e)
+            {
+                log.Error(e);
+            }
+            finally
+            {
+                log.Debug("The client stops listening for new message");
 
-            this.IsConnected = false;
+                this.IsConnected = false;
+            }
         }
 
         /// <summary>
@@ -221,10 +239,12 @@
             if (reuse)
             {
                 ResetConnection();
+                log.Info("Client disconnected from Server. Can connect again");
             }
             else
             {
                 this.Server.TcpClient.Close();
+                log.Info("Client disconnected from Server. Can not connect anymore");
             }
         }
 

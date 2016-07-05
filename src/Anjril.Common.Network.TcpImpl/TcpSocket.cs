@@ -1,6 +1,7 @@
 ﻿namespace Anjril.Common.Network.TcpImpl
 {
     using Exceptions;
+    using global::Common.Logging;
     using Internals;
     using System;
     using System.Collections.Generic;
@@ -12,6 +13,8 @@
 
     public class TcpSocket : ISocket
     {
+        private static ILog log = LogManager.GetLogger(typeof(TcpSocket));
+
         #region properties
 
         public bool IsListening { get; private set; }
@@ -186,57 +189,72 @@
         {
             var remote = (TcpRemoteConnection)remoteConnection;
 
-            Message request = null;
+            log.DebugFormat("Validating the connection of {0}:{1}", remote.IPAddress, remote.Port);
 
-            for (int i = 0; request == null; i++)
+            try
             {
-                if (i > 10) // TODO : parameterize the timeout
+                Message request = null;
+
+                for (int i = 0; request == null; i++)
                 {
-                    Message response = new Message(Command.ConnectionFailed, "The connection request takes to long.");
+                    if (i > 10) // TODO : parameterize the timeout
+                    {
+                        Message response = new Message(Command.ConnectionFailed, "The connection request takes to long.");
+
+                        log.Debug("Connection Timeout");
+
+                        remote.Send(response);
+                        remote.TcpClient.Close();
+                        return;
+                    }
+
+                    request = remote.Receive();
+
+                    if (request == null)
+                    {
+                        Thread.Sleep(100);
+                    }
+                }
+
+                if (request.IsValid && request.Command == Command.ConnectionRequest)
+                {
+                    string responseStr = null;
+                    var success = this.OnConnectionRequested != null
+                        ? this.OnConnectionRequested(remote, request.InnerMessage, out responseStr)
+                        : true;
+
+                    Message response = new Message(success ? Command.ConnectionGranted : Command.ConnectionFailed, responseStr);
+
+                    remote.Send(response);
+
+                    if (success)
+                    {
+                        this.Clients.Add(remote);
+                        log.Debug("Connection Granted");
+                    }
+                    else
+                    {
+                        remote.TcpClient.Close();
+                        log.Debug("Connection Refused");
+                    }
+                }
+                else
+                {
+                    Message response = new Message(Command.ConnectionFailed, "The connection request is not in the valid format or with the expected command.");
 
                     remote.Send(response);
                     remote.TcpClient.Close();
-                    return;
-                }
 
-                var requestStr = remote.Receive();
-
-                if (requestStr == null)
-                {
-                    Thread.Sleep(100);
-                }
-                else
-                {
-                    request = new Message(requestStr);
+                    log.Debug("Connection Request Invalid");
                 }
             }
-
-            if (request.IsValid && request.Command == Command.ConnectionRequest)
+            catch (Exception e)
             {
-                string responseStr = null;
-                var success = this.OnConnectionRequested != null
-                    ? this.OnConnectionRequested(remote, request.InnerMessage, out responseStr)
-                    : true;
-
-                Message response = new Message(success ? Command.ConnectionGranted : Command.ConnectionFailed, responseStr);
-
-                remote.Send(response);
-
-                if (success)
-                {
-                    this.Clients.Add(remote);
-                }
-                else
-                {
-                    remote.TcpClient.Close();
-                }
+                log.Error(e);
             }
-            else
+            finally
             {
-                Message response = new Message(Command.ConnectionFailed, "The connection request is not in the valid format or with the expected command.");
-
-                remote.Send(response);
-                remote.TcpClient.Close();
+                log.DebugFormat("Validation of {0}:{1} finished", remote.IPAddress, remote.Port);
             }
         }
 
@@ -245,39 +263,49 @@
         /// </summary>
         private void ListeningMessage()
         {
-            while (!this.Stop)
+            try
             {
-                var disconnectedRemote = new List<TcpRemoteConnection>();
+                log.Info("The server starts listening for new message");
 
-                foreach (var remote in this.Clients.Cast<TcpRemoteConnection>())
+                while (!this.Stop)
                 {
-                    for (var messageStr = remote.Receive(); !String.IsNullOrEmpty(messageStr); messageStr = remote.Receive())
+                    var disconnectedRemote = new List<TcpRemoteConnection>();
+
+                    foreach (var remote in this.Clients.Cast<TcpRemoteConnection>())
                     {
-                        var message = new Message(messageStr);
-
-                        if (message.IsValid && message.Command == Command.Message)
+                        for (var message = remote.Receive(); message != null; message = remote.Receive())
                         {
-                            this.OnMessageReceived?.Invoke(remote, message.InnerMessage);
-                        }
-                        else if (message.IsValid && message.Command == Command.Disconnection)
-                        {
-                            disconnectedRemote.Add(remote);
+                            if (message.IsValid && message.Command == Command.Message)
+                            {
+                                this.OnMessageReceived?.Invoke(remote, message.InnerMessage);
+                            }
+                            else if (message.IsValid && message.Command == Command.Disconnection)
+                            {
+                                disconnectedRemote.Add(remote);
 
-                            this.OnDisconnect?.Invoke(remote, message.InnerMessage);
+                                this.OnDisconnect?.Invoke(remote, message.InnerMessage);
+                            }
                         }
                     }
-                }
 
-                foreach (var remote in disconnectedRemote)
-                {
-                    remote.Send(new Message(Command.Disconnected, null));
-                    this.RemoveClient(remote);
-                }
+                    foreach (var remote in disconnectedRemote)
+                    {
+                        remote.Send(new Message(Command.Disconnected, null));
+                        this.RemoveClient(remote);
+                    }
 
-                Thread.Sleep(100); // TODO : parameterize tick
+                    Thread.Sleep(100); // TODO : parameterize tick
+                }
             }
-
-            this.IsListening = false;
+            catch (Exception e)
+            {
+                log.Error(e);
+            }
+            finally
+            {
+                this.IsListening = false;
+                log.Info("The Server stops listenning for new message");
+            }
         }
 
         /// <summary>
