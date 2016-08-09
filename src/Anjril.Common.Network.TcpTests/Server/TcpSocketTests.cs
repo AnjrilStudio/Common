@@ -9,6 +9,7 @@ using Anjril.Common.Network.Exceptions;
 using System.Threading.Tasks;
 using Anjril.Common.Network.TcpImpl.Internals;
 using System.Diagnostics;
+using Anjril.Common.Network.TcpImpl.Properties;
 
 namespace Anjril.Common.Network.TcpTests
 {
@@ -31,12 +32,15 @@ namespace Anjril.Common.Network.TcpTests
         [TestInitialize]
         public void MyTestInitialize()
         {
+            Settings.Default.ServerPort = SERVER_PORT;
+            Settings.Default.MessageBound = SEPARATOR;
+
             var tester1EndPoint = new IPEndPoint(IPAddress.Parse(LOCALHOST), CLIENT_1_PORT);
             var tester2EndPoint = new IPEndPoint(IPAddress.Parse(LOCALHOST), CLIENT_2_PORT);
 
-            this.Tested = new TcpSocket(SERVER_PORT, SEPARATOR);
-            this.Tester1 = new TcpRemoteConnection(new TcpClient(tester1EndPoint), SEPARATOR);
-            this.Tester2 = new TcpRemoteConnection(new TcpClient(tester2EndPoint), SEPARATOR);
+            this.Tested = new TcpSocket();
+            this.Tester1 = new TcpRemoteConnection(new TcpClient(tester1EndPoint));
+            this.Tester2 = new TcpRemoteConnection(new TcpClient(tester2EndPoint));
 
             this.Tested.StartListening(null, OnMessageReceived, null);
 

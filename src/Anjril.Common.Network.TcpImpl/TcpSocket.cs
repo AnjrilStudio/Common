@@ -3,8 +3,10 @@
     using Exceptions;
     using global::Common.Logging;
     using Internals;
+    using Properties;
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Net;
     using System.Net.Sockets;
@@ -18,7 +20,7 @@
         #region properties
 
         public bool IsListening { get; private set; }
-        public int Port { get { return (this.Listener.Server.LocalEndPoint as IPEndPoint).Port; } }
+        public int Port { get { return (this.Listener.LocalEndpoint as IPEndPoint).Port; } }
         public IList<IRemoteConnection> Clients { get; private set; }
 
         #endregion
@@ -34,11 +36,6 @@
         /// Indicates whether this intance has to stop listening
         /// </summary>
         private bool Stop { get; set; }
-
-        /// <summary>
-        /// The separator used to distinguish different message received
-        /// </summary>
-        private string Separator { get; set; }
 
         /// <summary>
         /// The delegate executed when a connection request arrives
@@ -59,11 +56,10 @@
 
         #region constructors
 
-        public TcpSocket(int port, string separator)
+        public TcpSocket()
         {
-            this.Listener = new TcpListener(IPAddress.Any, port);
+            this.Listener = new TcpListener(IPAddress.Any, Settings.Default.ServerPort);
             this.Clients = new List<IRemoteConnection>();
-            this.Separator = separator;
             this.Stop = false;
         }
 
@@ -73,32 +69,9 @@
 
         public void Broadcast(string message)
         {
-            var disconnectedRemote = new List<TcpRemoteConnection>();
-
-            foreach (var remote in this.Clients)
+            foreach (var remote in this.Clients.ToList())
             {
-                try
-                {
-                    remote.Send(message);
-                }
-                catch (SocketException e)
-                {
-                    switch (e.ErrorCode)
-                    {
-                        case 10053:
-                            // The remote connection is disconnected
-                            disconnectedRemote.Add(remote as TcpRemoteConnection);
-                            break;
-                        default:
-                            // In all the other cases, the exception is thrown
-                            throw e;
-                    }
-                }
-            }
-
-            foreach (var remote in disconnectedRemote)
-            {
-                this.RemoveClient(remote);
+                remote.Send(message);
             }
         }
 
@@ -131,13 +104,15 @@
 
         public void CloseConnection(IRemoteConnection client, string justification)
         {
-            if (this.Clients.Contains(client)) { }
-            var tcpRemote = (client as TcpRemoteConnection);
+            if (this.Clients.Contains(client))
+            {
+                var tcpRemote = (client as TcpRemoteConnection);
 
-            tcpRemote.Send(new Message(Command.Disconnected, justification));
-            tcpRemote.TcpClient.Close();
+                tcpRemote.Send(new Message(Command.Disconnected, justification));
+                tcpRemote.TcpClient.Close();
 
-            this.Clients.Remove(client);
+                this.Clients.Remove(client);
+            }
         }
 
         #endregion
@@ -158,7 +133,7 @@
                 {
                     var client = this.Listener.AcceptTcpClient();
 
-                    var remote = new TcpRemoteConnection(client, this.Separator);
+                    var remote = new TcpRemoteConnection(client, this);
 
                     var thread = new Thread(new ParameterizedThreadStart(this.ValidateConnection));
                     thread.Name = String.Format("TcpSocket:{0} ValidateConnection", this.GetHashCode());
@@ -195,9 +170,13 @@
             {
                 Message request = null;
 
-                for (int i = 0; request == null; i++)
+                var connectionTimeout = Settings.Default.ConnectionTimeout;
+
+                var chrono = Stopwatch.StartNew();
+
+                while (request == null)
                 {
-                    if (i > 10) // TODO : parameterize the timeout
+                    if (chrono.ElapsedMilliseconds > connectionTimeout)
                     {
                         Message response = new Message(Command.ConnectionFailed, "The connection request takes to long.");
 
@@ -267,6 +246,8 @@
             {
                 log.Info("The server starts listening for new message");
 
+                var listeningTick = Settings.Default.ListeningTick;
+
                 while (!this.Stop)
                 {
                     var disconnectedRemote = new List<TcpRemoteConnection>();
@@ -294,7 +275,7 @@
                         this.RemoveClient(remote);
                     }
 
-                    Thread.Sleep(100); // TODO : parameterize tick
+                    Thread.Sleep(listeningTick);
                 }
             }
             catch (Exception e)

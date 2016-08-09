@@ -1,7 +1,9 @@
 ﻿namespace Anjril.Common.Network.TcpImpl
 {
+    using Exceptions;
     using global::Common.Logging;
     using Internals;
+    using Properties;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -42,31 +44,66 @@
         private string Buffer { get; set; }
 
         /// <summary>
-        /// The separator used to parse the buffer and extract the messages
-        /// </summary>
-        private string Separator { get; set; }
-
-        /// <summary>
         /// The ping instance used to get the ping between two remote connection
         /// </summary>
         private Ping PingUtil { get; set; }
+
+        /// <summary>
+        /// The TcpSocket which is managin this instance of TcpRemoteConnection
+        /// </summary>
+        private TcpSocket TcpSocket { get; set; }
+
+        /// <summary>
+        /// The TcpSocketClient which is managing this instance of TcpRemoteConnection
+        /// </summary>
+        private TcpSocketClient TcpSocketClient { get; set; }
+
+        /// <summary>
+        /// The Encoding used to serialize messages
+        /// </summary>
+        private Encoding Encoder { get; set; }
 
         #endregion
 
         #region constructors
 
         /// <summary>
+        ///Instantiates a new tcp remote connection
+        /// </summary>
+        /// <param name="client">The TcpClient used to send and receive message</param>
+        /// <param name="separator">The separator used to distinguish two different message</param>
+        internal TcpRemoteConnection(TcpClient client)
+        {
+            this.TcpClient = client;
+            this.Buffer = String.Empty;
+
+            this.Encoder = Encoding.GetEncoding(Settings.Default.Encoding);
+
+            this.PingUtil = new Ping();
+        }
+
+        /// <summary>
         /// Instantiates a new tcp remote connection
         /// </summary>
         /// <param name="client">The TcpClient used to send and receive message</param>
         /// <param name="separator">The separator used to distinguish two different message</param>
-        public TcpRemoteConnection(TcpClient client, string separator)
+        /// <param name="socket">The socket managing the new instance</param>
+        public TcpRemoteConnection(TcpClient client, TcpSocket socket)
+            : this(client)
         {
-            this.TcpClient = client;
-            this.Buffer = String.Empty;
-            this.Separator = separator;
+            this.TcpSocket = socket;
+        }
 
-            this.PingUtil = new Ping();
+        /// <summary>
+        /// Instantiates a new tcp remote connection
+        /// </summary>
+        /// <param name="client">The TcpClient used to send and receive message</param>
+        /// <param name="separator">The separator used to distinguish two different message</param>
+        /// <param name="socketClient">The socketClient managing the new instance</param>
+        public TcpRemoteConnection(TcpClient client, TcpSocketClient socketClient)
+            : this(client)
+        {
+            this.TcpSocketClient = socketClient;
         }
 
         #endregion
@@ -101,16 +138,18 @@
 
             Message message = null;
 
+            var separator = Settings.Default.MessageBound;
+
             // Extracting next message
-            if (this.Buffer.Contains(this.Separator))
+            if (this.Buffer.Contains(separator))
             {
-                var splitedMessages = this.Buffer.Split(new string[] { this.Separator }, StringSplitOptions.None);
+                var splitedMessages = this.Buffer.Split(new string[] { separator }, StringSplitOptions.None);
 
                 log.TraceFormat("Delivery of a new message : '{0}'", splitedMessages[0]);
 
                 message = new Message(splitedMessages[0]);
 
-                this.Buffer = String.Join(this.Separator, splitedMessages.Skip(1).ToArray());
+                this.Buffer = String.Join(separator, splitedMessages.Skip(1).ToArray());
             }
 
             return message;
@@ -124,8 +163,34 @@
         {
             log.DebugFormat("New message ({0}) sent to the remote connection: {1}:{2}", message, this.IPAddress, this.Port);
 
-            var datagram = this.SerializeMessage(message.ToString() + this.Separator);
-            this.TcpClient.Client.Send(datagram);
+            var datagram = this.SerializeMessage(message.ToString() + Settings.Default.MessageBound);
+
+            try
+            {
+                this.TcpClient.Client.Send(datagram);
+            }
+            catch (SocketException e)
+            {
+                switch (e.ErrorCode)
+                {
+                    case 10053:
+                        // The remote connection is disconnected
+                        if (this.TcpSocket != null)
+                        {
+                            this.TcpSocket.Clients.Remove(this);
+                            this.TcpSocket.OnDisconnect?.Invoke(this, null);
+                        }
+                        else if (this.TcpSocketClient != null)
+                        {
+                            this.TcpSocketClient.ResetConnection();
+                            throw new ConnectionLostException(e);
+                        }
+                        break;
+                    default:
+                        // In all the other cases, the exception is thrown
+                        throw e;
+                }
+            }
         }
 
         #endregion
@@ -139,8 +204,7 @@
         /// <returns>The string serialized into a byte array</returns>
         private byte[] SerializeMessage(string message)
         {
-            // TODO : parameterize the default encoding
-            var datagram = Encoding.ASCII.GetBytes(message);
+            var datagram = this.Encoder.GetBytes(message);
 
             return datagram;
         }
@@ -152,8 +216,7 @@
         /// <returns>The string deserialized</returns>
         private string DeserializeDatagram(byte[] datagram)
         {
-            // TODO : parameterize the default encoding
-            var message = Encoding.ASCII.GetString(datagram);
+            var message = this.Encoder.GetString(datagram);
 
             return message;
         }

@@ -3,6 +3,7 @@
     using Exceptions;
     using global::Common.Logging;
     using Internals;
+    using Properties;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -18,7 +19,7 @@
 
         #region properties
 
-        public bool IsConnected { get; private set; }
+        public bool IsConnected { get; internal set; }
         public int Port { get { return (this.Server.TcpClient.Client.LocalEndPoint as IPEndPoint).Port; } }
 
         #endregion
@@ -44,10 +45,10 @@
 
         #region constructors
 
-        public TcpSocketClient(int port, string separator)
+        public TcpSocketClient()
         {
-            var localEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), port);
-            this.Server = new TcpRemoteConnection(new TcpClient(localEndPoint), separator);
+            var localEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), Settings.Default.ClientPort);
+            this.Server = new TcpRemoteConnection(new TcpClient(localEndPoint), this);
             this.Stop = false;
             this.IsConnected = false;
         }
@@ -81,7 +82,7 @@
 
             this.Server.Send(msg);
 
-            Message response = this.ReceiveMessage(1000); // TODO : parameterize timeout
+            Message response = this.ReceiveMessage(Settings.Default.ConnectionTimeout);
 
             if (response == null)
             {
@@ -122,17 +123,9 @@
         {
             var msg = new Message(Command.Message, message);
 
-            try
-            {
-                this.Server.Send(msg);
+            this.Server.Send(msg);
 
-                log.DebugFormat("Message sent: {0}", msg);
-            }
-            catch (SocketException e)
-            {
-                this.ResetConnection();
-                throw new ConnectionLostException(e);
-            }
+            log.DebugFormat("Message sent: {0}", msg);
         }
 
         #endregion
@@ -144,7 +137,7 @@
         /// </summary>
         /// <param name="timeout">The timeout</param>
         /// <returns>The message received</returns>
-        private Message ReceiveMessage(int timeout)
+        private Message ReceiveMessage(long timeout)
         {
             var timer = Stopwatch.StartNew();
 
@@ -160,7 +153,7 @@
                         return null;
                     }
 
-                    Thread.Sleep(100); // TODO : parameterize the tick
+                    Thread.Sleep(Settings.Default.ListeningTick);
                 }
                 else
                 {
@@ -186,7 +179,7 @@
 
                     if (message == null)
                     {
-                        Thread.Sleep(100); // TODO : parameterize the tick
+                        Thread.Sleep(Settings.Default.ListeningTick);
                     }
                     else
                     {
@@ -251,7 +244,7 @@
         /// <summary>
         /// Closes the connection in a way it can be used again to connect with another server
         /// </summary>
-        private void ResetConnection()
+        internal void ResetConnection()
         {
             this.Stop = true;
             this.IsConnected = false;

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Anjril.Common.Network.TcpImpl.Internals;
 using System.Diagnostics;
 using System.Collections.Generic;
+using Anjril.Common.Network.TcpImpl.Properties;
 
 namespace Anjril.Common.Network.TcpTests.Client
 {
@@ -30,10 +31,13 @@ namespace Anjril.Common.Network.TcpTests.Client
         [TestInitialize]
         public void MyTestInitialize()
         {
+            Settings.Default.ClientPort = CLIENT_PORT;
+            Settings.Default.MessageBound = SEPARATOR;
+
             this.ReceivedMessages = new List<Tuple<string, IRemoteConnection>>();
 
             this.TesterListener = new TcpListener(new IPEndPoint(IPAddress.Parse(LOCALHOST), SERVER_PORT));
-            this.Tested = new TcpSocketClient(CLIENT_PORT, SEPARATOR);
+            this.Tested = new TcpSocketClient();
 
             this.TesterListener.Start();
 
@@ -48,7 +52,7 @@ namespace Anjril.Common.Network.TcpTests.Client
                 connectionResponse.Wait();
             }
 
-            this.Tester = new TcpRemoteConnection(connectionRequest.Result, SEPARATOR);
+            this.Tester = new TcpRemoteConnection(connectionRequest.Result);
 
             var messageRequest = this.ReceiveMessage();
 

@@ -24,7 +24,7 @@ namespace Anjril.Common.Network.TcpTests
 
             var testedEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 16000);
             var testedTcpClient = new TcpClient(testedEndPoint);
-            this.Tested = new TcpRemoteConnection(testedTcpClient, this.Separator);
+            this.Tested = new TcpRemoteConnection(testedTcpClient);
 
             var testerEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 15000);
             this.TesterListener = new TcpListener(testerEndPoint);

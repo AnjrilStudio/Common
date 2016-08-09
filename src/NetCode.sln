@@ -17,6 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{15EBA61D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anjril.Common.Network.TcpTests", "Anjril.Common.Network.TcpTests\Anjril.Common.Network.TcpTests.csproj", "{0EAFD264-144C-4EF0-BBA5-A7C37B9920B1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Anjril.Common.Network.Tests", "Anjril.Common.Network.Tests\Anjril.Common.Network.Tests.csproj", "{B9BBA576-D1D8-497E-9D92-FC1CABD15279}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -54,6 +56,12 @@ Global
 		{0EAFD264-144C-4EF0-BBA5-A7C37B9920B1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0EAFD264-144C-4EF0-BBA5-A7C37B9920B1}.WAN|Any CPU.ActiveCfg = Release|Any CPU
 		{0EAFD264-144C-4EF0-BBA5-A7C37B9920B1}.WAN|Any CPU.Build.0 = Release|Any CPU
+		{B9BBA576-D1D8-497E-9D92-FC1CABD15279}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9BBA576-D1D8-497E-9D92-FC1CABD15279}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9BBA576-D1D8-497E-9D92-FC1CABD15279}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9BBA576-D1D8-497E-9D92-FC1CABD15279}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9BBA576-D1D8-497E-9D92-FC1CABD15279}.WAN|Any CPU.ActiveCfg = Release|Any CPU
+		{B9BBA576-D1D8-497E-9D92-FC1CABD15279}.WAN|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -63,5 +71,6 @@ Global
 		{2ED5AFB1-952A-4080-BA97-C9786568BE6F} = {15EBA61D-3A33-447F-ABB2-6E4C616F8770}
 		{79568BB3-CB26-4D3A-8850-2D97A96377BA} = {4926AF0F-6FB7-4C90-9B3F-92471B977C2F}
 		{0EAFD264-144C-4EF0-BBA5-A7C37B9920B1} = {15EBA61D-3A33-447F-ABB2-6E4C616F8770}
+		{B9BBA576-D1D8-497E-9D92-FC1CABD15279} = {15EBA61D-3A33-447F-ABB2-6E4C616F8770}
 	EndGlobalSection
 EndGlobal
