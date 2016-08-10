@@ -13,7 +13,7 @@
 		<releaseNotes>https://github.com/AnjrilStudio/Common/releases</releaseNotes>
 		<copyright>Copyright 2015</copyright>
 		<dependencies>
-			<dependency id="Anjril.Common.Network" version="1.0.0-rc1" />
+			<dependency id="Anjril.Common.Network" version="1.0.0-rc2" />
 		</dependencies>
 	</metadata>
 </package>
