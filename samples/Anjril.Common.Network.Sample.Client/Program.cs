@@ -1,5 +1,6 @@
 ﻿using Anjril.Common.Network.Exceptions;
 using Anjril.Common.Network.TcpImpl;
+using Anjril.Common.Network.TcpImpl.Properties;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,10 +25,9 @@ namespace Anjril.Common.Network.Sample.Client
             Console.WriteLine("-----------------------------------");
             Console.WriteLine();
 
-            var rand = new Random();
-            var port = rand.Next(1500, 65000);
+            Settings.Default.MessageBound = SEP;
 
-            using (CLIENT = new TcpSocketClient(port, SEP))
+            using (CLIENT = new TcpSocketClient())
             {
                 Console.Write("Please, type your username: ");
                 var username = Console.ReadLine();
@@ -37,7 +37,7 @@ namespace Anjril.Common.Network.Sample.Client
                 try
                 {
                     var greetings = CLIENT.Connect("127.0.0.1", SERVER_PORT, OnMessageReceived, username);
-                    Console.WriteLine("Client connected on port: " + port);
+                    Console.WriteLine("Client connected on port: " + CLIENT.Port);
                     Console.WriteLine();
 
                     Console.WriteLine(greetings);

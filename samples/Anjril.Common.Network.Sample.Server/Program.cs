@@ -1,4 +1,5 @@
 ﻿using Anjril.Common.Network.TcpImpl;
+using Anjril.Common.Network.TcpImpl.Properties;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,11 +27,14 @@ namespace Anjril.Common.Network.Sample.Server
 
             USERNAMES = new Dictionary<IRemoteConnection, string>();
 
-            using (SOCKET = new TcpSocket(PORT, SEP))
+            Settings.Default.ServerPort = PORT;
+            Settings.Default.MessageBound = SEP;
+
+            using (SOCKET = new TcpSocket())
             {
                 Console.WriteLine("Connecting...");
                 SOCKET.StartListening(OnConnectionRequested, OnMessageReceived, OnDisconnect);
-                Console.WriteLine("Server connected on port: " + PORT);
+                Console.WriteLine("Server connected on port: " + SOCKET.Port);
                 Console.WriteLine();
 
                 bool quit = false;
