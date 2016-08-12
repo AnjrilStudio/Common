@@ -38,7 +38,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Anjril.Common.Network.TcpImpl, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Anjril.Common.Network.TcpImpl.1.0.0-rc3\lib\net35\Anjril.Common.Network.TcpImpl.dll</HintPath>
+      <HintPath>..\packages\Anjril.Common.Network.TcpImpl.1.0.0-rc4\lib\net35\Anjril.Common.Network.TcpImpl.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Common.Logging, Version=3.3.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">

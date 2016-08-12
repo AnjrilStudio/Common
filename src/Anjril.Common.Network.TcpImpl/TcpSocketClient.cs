@@ -47,7 +47,7 @@
 
         public TcpSocketClient()
         {
-            var localEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), Settings.Default.ClientPort);
+            var localEndPoint = new IPEndPoint(IPAddress.Any, Settings.Default.ClientPort);
             this.Server = new TcpRemoteConnection(new TcpClient(localEndPoint), this);
             this.Stop = false;
             this.IsConnected = false;
