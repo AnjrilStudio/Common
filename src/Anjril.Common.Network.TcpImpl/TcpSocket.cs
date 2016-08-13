@@ -109,9 +109,10 @@
                 var tcpRemote = (client as TcpRemoteConnection);
 
                 tcpRemote.Send(new Message(Command.Disconnected, justification));
-                tcpRemote.TcpClient.Close();
 
                 this.Clients.Remove(client);
+
+                tcpRemote.TcpClient.Close();
             }
         }
 

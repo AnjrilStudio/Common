@@ -222,5 +222,24 @@
         }
 
         #endregion
+
+        #region overridden methods
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || !(obj is IRemoteConnection))
+                return false;
+
+            IRemoteConnection other = (IRemoteConnection)obj;
+
+            return other.IPAddress == this.IPAddress && other.Port == this.Port;
+        }
+
+        public override int GetHashCode()
+        {
+            return this.TcpClient.GetHashCode();
+        }
+
+        #endregion
     }
 }
