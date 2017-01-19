@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2A4F071A-EF3C-4248-90BB-B47CBCE66A7B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E2BD7B73-82F9-4727-9189-12BE25FB6C4B}"
+	ProjectSection(SolutionItems) = preProject
+		global.json = global.json
+	EndProjectSection
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Anjril.Common.Network", "src\Anjril.Common.Network\Anjril.Common.Network.xproj", "{9B7C6705-D573-4792-8279-9A49A50E9AD9}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Anjril.Common.Network.TcpImpl", "src\Anjril.Common.Network.TcpImpl\Anjril.Common.Network.TcpImpl.xproj", "{97BEDA73-A0D9-4D8C-B84C-A0D37D469A49}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{6A70B23B-031B-456D-A86B-2A1E79BC7208}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Anjril.Common.Network.Tests", "test\Anjril.Common.Network.Tests\Anjril.Common.Network.Tests.xproj", "{D3A12CBA-E3E4-46BD-BF94-7860C7BF7035}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Anjril.Common.Network.TcpImpl.Tests", "test\Anjril.Common.Network.TcpImpl.Tests\Anjril.Common.Network.TcpImpl.Tests.xproj", "{25894598-77B9-4D4E-A83B-C328D13EF1FF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9B7C6705-D573-4792-8279-9A49A50E9AD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B7C6705-D573-4792-8279-9A49A50E9AD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B7C6705-D573-4792-8279-9A49A50E9AD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B7C6705-D573-4792-8279-9A49A50E9AD9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{97BEDA73-A0D9-4D8C-B84C-A0D37D469A49}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97BEDA73-A0D9-4D8C-B84C-A0D37D469A49}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97BEDA73-A0D9-4D8C-B84C-A0D37D469A49}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97BEDA73-A0D9-4D8C-B84C-A0D37D469A49}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3A12CBA-E3E4-46BD-BF94-7860C7BF7035}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3A12CBA-E3E4-46BD-BF94-7860C7BF7035}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3A12CBA-E3E4-46BD-BF94-7860C7BF7035}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3A12CBA-E3E4-46BD-BF94-7860C7BF7035}.Release|Any CPU.Build.0 = Release|Any CPU
+		{25894598-77B9-4D4E-A83B-C328D13EF1FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{25894598-77B9-4D4E-A83B-C328D13EF1FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{25894598-77B9-4D4E-A83B-C328D13EF1FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{25894598-77B9-4D4E-A83B-C328D13EF1FF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9B7C6705-D573-4792-8279-9A49A50E9AD9} = {2A4F071A-EF3C-4248-90BB-B47CBCE66A7B}
+		{97BEDA73-A0D9-4D8C-B84C-A0D37D469A49} = {2A4F071A-EF3C-4248-90BB-B47CBCE66A7B}
+		{D3A12CBA-E3E4-46BD-BF94-7860C7BF7035} = {6A70B23B-031B-456D-A86B-2A1E79BC7208}
+		{25894598-77B9-4D4E-A83B-C328D13EF1FF} = {6A70B23B-031B-456D-A86B-2A1E79BC7208}
+	EndGlobalSection
+EndGlobal

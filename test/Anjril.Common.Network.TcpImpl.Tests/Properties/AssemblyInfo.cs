@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Astellia")]
-[assembly: AssemblyProduct("Anjril.Common.Network.TcpImpl")]
+[assembly: AssemblyProduct("Anjril.Common.Network.TcpImpl.Tests")]
 [assembly: AssemblyTrademark("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible
@@ -16,4 +16,4 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("97beda73-a0d9-4d8c-b84c-a0d37d469a49")]
+[assembly: Guid("25894598-77b9-4d4e-a83b-c328d13ef1ff")]
