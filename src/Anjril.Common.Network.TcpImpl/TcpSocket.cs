@@ -1,9 +1,9 @@
 ﻿namespace Anjril.Common.Network.TcpImpl
 {
     using Exceptions;
-    using global::Common.Logging;
     using Internals;
-    using Properties;
+    using Logging;
+    //using Properties;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -15,7 +15,11 @@
 
     public class TcpSocket : ISocket
     {
-        private static ILog log = LogManager.GetLogger(typeof(TcpSocket));
+        #region fields
+
+        private AnjrilLogger logger = AnjrilNetworkLogging.CreateLogger<TcpRemoteConnection>();
+
+        #endregion
 
         #region properties
 
@@ -112,7 +116,7 @@
 
                 this.Clients.Remove(client);
 
-                tcpRemote.TcpClient.Close();
+                tcpRemote.TcpClient.Dispose();
             }
         }
 
@@ -143,10 +147,10 @@
                 catch (SocketException e)
                 {
                     // Handle exceptions that needs to be thrown and those that don't
-                    switch (e.NativeErrorCode)
+                    switch (e.SocketErrorCode)
                     {
-                        case 10004: // the tcp listener has been stopped, we don't need to throw an exception in that case
-                                    //case XXX: // manage other specifics exception that don't need to be thrown 
+                        case SocketError.Interrupted: // the tcp listener has been stopped, we don't need to throw an exception in that case
+                        //case XXX: // manage other specifics exception that don't need to be thrown 
                             break;
                         default:
                             throw e;
@@ -165,7 +169,7 @@
         {
             var remote = (TcpRemoteConnection)remoteConnection;
 
-            log.DebugFormat("Validating the connection of {0}:{1}", remote.IPAddress, remote.Port);
+            logger.LogNetwork($"Validating the connection of {remote.IPAddress}:{remote.Port}");
 
             try
             {
@@ -181,7 +185,7 @@
                     {
                         Message response = new Message(Command.ConnectionFailed, "The connection request takes to long.");
 
-                        log.Debug("Connection Timeout");
+                        logger.LogNetwork("Connection Timeout");
 
                         remote.Send(response);
                         remote.TcpClient.Close();
@@ -210,12 +214,12 @@
                     if (success)
                     {
                         this.Clients.Add(remote);
-                        log.Debug("Connection Granted");
+                        logger.LogNetwork("Connection Granted");
                     }
                     else
                     {
                         remote.TcpClient.Close();
-                        log.Debug("Connection Refused");
+                        logger.LogNetwork("Connection Refused");
                     }
                 }
                 else
@@ -225,16 +229,16 @@
                     remote.Send(response);
                     remote.TcpClient.Close();
 
-                    log.Debug("Connection Request Invalid");
+                    logger.LogNetwork("Connection Request Invalid");
                 }
             }
             catch (Exception e)
             {
-                log.Error(e);
+                logger.LogError(e);
             }
             finally
             {
-                log.DebugFormat("Validation of {0}:{1} finished", remote.IPAddress, remote.Port);
+                logger.LogNetwork($"Validation of {remote.IPAddress}:{remote.Port} finished");
             }
         }
 
@@ -245,7 +249,7 @@
         {
             try
             {
-                log.Info("The server starts listening for new message");
+                logger.LogNetwork("The server starts listening for new message");
 
                 var listeningTick = Settings.Default.ListeningTick;
 
@@ -281,12 +285,12 @@
             }
             catch (Exception e)
             {
-                log.Error(e);
+                logger.LogError(e);
             }
             finally
             {
                 this.IsListening = false;
-                log.Info("The Server stops listenning for new message");
+                logger.LogNetwork("The Server stops listenning for new message");
             }
         }
 

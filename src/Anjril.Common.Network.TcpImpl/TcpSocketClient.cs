@@ -1,9 +1,9 @@
 ﻿namespace Anjril.Common.Network.TcpImpl
 {
     using Exceptions;
-    using global::Common.Logging;
     using Internals;
-    using Properties;
+    using Logging;
+    //using Properties;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -15,7 +15,11 @@
 
     public class TcpSocketClient : ISocketClient
     {
-        private static ILog log = LogManager.GetLogger(typeof(TcpSocketClient));
+        #region fields
+
+        private AnjrilLogger logger = AnjrilNetworkLogging.CreateLogger<TcpRemoteConnection>();
+
+        #endregion
 
         #region properties
 
@@ -59,7 +63,7 @@
 
         public string Connect(string ipAddress, int port, MessageHandler onMessageReceived, string message)
         {
-            log.InfoFormat("Connection to {0}:{1} remote connection", ipAddress, port);
+            logger.LogNetwork($"Connection to {ipAddress}:{port} remote connection");
 
             if (this.IsConnected)
             {
@@ -125,7 +129,7 @@
 
             this.Server.Send(msg);
 
-            log.DebugFormat("Message sent: {0}", msg);
+            logger.LogNetwork($"Message sent: {msg}");
         }
 
         #endregion
@@ -171,7 +175,7 @@
             {
                 this.Stop = false;
 
-                log.Debug("The client starts listening for new message");
+                logger.LogNetwork("The client starts listening for new message");
 
                 while (!this.Stop)
                 {
@@ -197,11 +201,11 @@
             }
             catch (Exception e)
             {
-                log.Error(e);
+                logger.LogError(e);
             }
             finally
             {
-                log.Debug("The client stops listening for new message");
+                logger.LogNetwork("The client stops listening for new message");
 
                 this.IsConnected = false;
             }
@@ -232,12 +236,12 @@
             if (reuse)
             {
                 ResetConnection();
-                log.Info("Client disconnected from Server. Can connect again");
+                logger.LogNetwork("Client disconnected from Server. Can connect again");
             }
             else
             {
                 this.Server.TcpClient.Close();
-                log.Info("Client disconnected from Server. Can not connect anymore");
+                logger.LogNetwork("Client disconnected from Server. Can not connect anymore");
             }
         }
 

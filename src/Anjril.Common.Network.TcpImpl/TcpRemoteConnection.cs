@@ -1,21 +1,24 @@
 ﻿namespace Anjril.Common.Network.TcpImpl
 {
     using Exceptions;
-    using global::Common.Logging;
     using Internals;
-    using Properties;
+    using Logging;
+    //using Properties;
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Net;
-    using System.Net.NetworkInformation;
     using System.Net.Sockets;
     using System.Text;
 
 
     public class TcpRemoteConnection : IRemoteConnection
     {
-        private static ILog log = LogManager.GetLogger(typeof(TcpRemoteConnection));
+        #region fields
+
+        private AnjrilLogger logger = AnjrilNetworkLogging.CreateLogger<TcpRemoteConnection>();
+
+        #endregion
 
         #region properties
 
@@ -25,7 +28,8 @@
         {
             get
             {
-                return this.PingUtil.Send((this.TcpClient.Client.RemoteEndPoint as IPEndPoint).Address).RoundtripTime;
+                // TODO
+                throw new NotImplementedException("The Ping property of TcpRemoteConnection is not implemented yet.");
             }
         }
 
@@ -42,11 +46,6 @@
         /// The buffer used to store partial messages received
         /// </summary>
         private string Buffer { get; set; }
-
-        /// <summary>
-        /// The ping instance used to get the ping between two remote connection
-        /// </summary>
-        private Ping PingUtil { get; set; }
 
         /// <summary>
         /// The TcpSocket which is managin this instance of TcpRemoteConnection
@@ -71,22 +70,18 @@
         ///Instantiates a new tcp remote connection
         /// </summary>
         /// <param name="client">The TcpClient used to send and receive message</param>
-        /// <param name="separator">The separator used to distinguish two different message</param>
         internal TcpRemoteConnection(TcpClient client)
         {
             this.TcpClient = client;
             this.Buffer = String.Empty;
 
             this.Encoder = Encoding.GetEncoding(Settings.Default.Encoding);
-
-            this.PingUtil = new Ping();
         }
 
         /// <summary>
         /// Instantiates a new tcp remote connection
         /// </summary>
         /// <param name="client">The TcpClient used to send and receive message</param>
-        /// <param name="separator">The separator used to distinguish two different message</param>
         /// <param name="socket">The socket managing the new instance</param>
         public TcpRemoteConnection(TcpClient client, TcpSocket socket)
             : this(client)
@@ -98,7 +93,6 @@
         /// Instantiates a new tcp remote connection
         /// </summary>
         /// <param name="client">The TcpClient used to send and receive message</param>
-        /// <param name="separator">The separator used to distinguish two different message</param>
         /// <param name="socketClient">The socketClient managing the new instance</param>
         public TcpRemoteConnection(TcpClient client, TcpSocketClient socketClient)
             : this(client)
@@ -131,7 +125,7 @@
 
                 string addition = this.DeserializeDatagram(bytes);
 
-                log.TraceFormat("Addition of '{0}' to the buffer.", addition);
+                logger.LogTrace($"Addition of '{addition}' to the buffer.");
 
                 this.Buffer += addition;
             }
@@ -145,7 +139,7 @@
             {
                 var splitedMessages = this.Buffer.Split(new string[] { separator }, StringSplitOptions.None);
 
-                log.TraceFormat("Delivery of a new message : '{0}'", splitedMessages[0]);
+                logger.LogNetwork($"Delivery of a new message : '{splitedMessages[0]}'");
 
                 message = new Message(splitedMessages[0]);
 
@@ -161,7 +155,7 @@
         /// <param name="message"></param>
         internal void Send(Message message)
         {
-            log.DebugFormat("New message ({0}) sent to the remote connection: {1}:{2}", message, this.IPAddress, this.Port);
+            logger.LogNetwork($"New message ({message}) sent to the remote connection: {this.IPAddress}:{this.Port}");
 
             var datagram = this.SerializeMessage(message.ToString() + Settings.Default.MessageBound);
 
@@ -171,9 +165,9 @@
             }
             catch (SocketException e)
             {
-                switch (e.ErrorCode)
+                switch (e.SocketErrorCode)
                 {
-                    case 10053:
+                    case SocketError.ConnectionAborted:
                         // The remote connection is disconnected
                         if (this.TcpSocket != null)
                         {
